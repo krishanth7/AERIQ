@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordField } from '@/components/auth/password-field';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
+import { MandatoryTermsModal } from '@/components/auth/mandatory-terms-modal';
 
 export function LoginForm() {
   const router = useRouter();
@@ -22,6 +23,9 @@ export function LoginForm() {
   const [serverError, setServerError] = useState<string | null>(
     isExpired ? 'Your session has expired. Sign in again to continue.' : null
   );
+
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [isSubmittingTerms, setIsSubmittingTerms] = useState(false);
 
   const {
     register,
@@ -41,14 +45,27 @@ export function LoginForm() {
     try {
       const response = await login(data);
       if (response.success) {
-        // Redirect to onboarding or return URL
-        const returnUrl = searchParams?.get('from') || '/onboarding';
-        router.push(returnUrl);
+        // Show the Mandatory Digital Record Requirement terms modal
+        setShowTermsModal(true);
       } else {
         setServerError(response.error || 'The email or password is incorrect.');
       }
     } catch {
       setServerError("We couldn't connect to AERIQ. Check your connection and try again.");
+    }
+  };
+
+  const handleAcceptTerms = async () => {
+    setIsSubmittingTerms(true);
+    try {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('aeriq_terms_accepted', 'true');
+        localStorage.setItem('aeriq_terms_accepted_at', new Date().toISOString());
+      }
+      // Enter into the Dashboard
+      router.push('/dashboard');
+    } finally {
+      setIsSubmittingTerms(false);
     }
   };
 
@@ -90,7 +107,7 @@ export function LoginForm() {
               placeholder="name@company.com"
               error={error}
               aria-describedby={ariaDescribedBy}
-              disabled={isSubmitting}
+              disabled={isSubmitting || showTermsModal}
               {...register('email')}
             />
           )}
@@ -117,7 +134,7 @@ export function LoginForm() {
               placeholder="Enter your password"
               error={error}
               aria-describedby={ariaDescribedBy}
-              disabled={isSubmitting}
+              disabled={isSubmitting || showTermsModal}
               {...register('password')}
             />
           )}
@@ -131,6 +148,7 @@ export function LoginForm() {
           className="w-full mt-2"
           isLoading={isSubmitting}
           loadingText="Signing in…"
+          disabled={showTermsModal}
         >
           Sign in
         </Button>
@@ -146,6 +164,13 @@ export function LoginForm() {
           Create an account
         </Link>
       </div>
+
+      {/* Mandatory Digital Record Requirement Modal */}
+      <MandatoryTermsModal
+        isOpen={showTermsModal}
+        onAccept={handleAcceptTerms}
+        isSubmitting={isSubmittingTerms}
+      />
     </div>
   );
 }

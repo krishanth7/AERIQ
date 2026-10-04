@@ -129,7 +129,14 @@ export default function OnboardingPage() {
             <p className="text-xs text-text-tertiary">
               Farm configuration modules will be connected in Phase 1B.
             </p>
-            <div className="mt-4 flex items-center justify-center gap-3">
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => router.push('/dashboard')}
+              >
+                Go to Production Dashboard
+              </Button>
               <Button
                 variant="secondary"
                 size="md"

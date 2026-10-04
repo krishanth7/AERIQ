@@ -1,0 +1,244 @@
+AERIQ PROPRIETARY SOFTWARE LICENSE
+Version 1.0 (AERIQ-PSL-1.0)
+
+Copyright (c) 2026 Aero Intelli.
+All Rights Reserved.
+
+Product: AERIQ
+Owner: Aero Intelli
+
+=======================================================================
+1. PURPOSE
+=======================================================================
+
+This AERIQ Proprietary Software License ("License") governs the use,
+access, copying, modification, distribution, deployment, and other use
+of the AERIQ software platform and its associated source code,
+documentation, APIs, algorithms, models, databases, designs, and
+related materials ("Software").
+
+AERIQ is an intelligent Recirculating Aquaculture System (RAS) farm
+management platform developed by Aero Intelli.
+
+The Software is proprietary and is NOT open-source software.
+
+=======================================================================
+2. OWNERSHIP
+=======================================================================
+
+AERIQ and all associated intellectual property are owned by or licensed
+to Aero Intelli.
+
+This includes, without limitation:
+
+- Source code
+- Backend systems
+- Frontend applications
+- Database structures
+- APIs
+- RAS engineering calculation engines
+- Aquaculture production algorithms
+- Biomass calculation systems
+- Feed and FCR calculation systems
+- Water-quality calculation systems
+- TAN and nitrogen calculations
+- Biofilter sizing and performance calculations
+- Equipment sizing calculations
+- Production forecasting systems
+- Farm analytics
+- Automation systems
+- Artificial intelligence systems
+- Machine-learning models
+- IoT integrations
+- User-interface designs
+- Documentation
+- Technical specifications
+- Branding and associated proprietary materials
+
+Nothing in this License transfers ownership of AERIQ or its intellectual
+property to any user, customer, contributor, organization, or third party.
+
+=======================================================================
+3. PERMITTED USE
+=======================================================================
+
+Authorized users may use AERIQ only through access, subscriptions,
+licenses, deployments, or other permissions expressly provided by
+Aero Intelli.
+
+Permission to use AERIQ does not constitute a transfer or sale of the
+Software or its intellectual property.
+
+=======================================================================
+4. RESTRICTIONS
+=======================================================================
+
+Except where expressly authorized in writing by Aero Intelli or required
+by applicable law, you may not:
+
+1. Copy or reproduce the Software.
+2. Redistribute the Software or source code.
+3. Sell, rent, lease, sublicense, or commercially exploit the Software.
+4. Modify or create derivative works from proprietary AERIQ source code.
+5. Reverse engineer, decompile, or disassemble the Software.
+6. Circumvent authentication, licensing, security, or access controls.
+7. Extract proprietary algorithms, models, or calculation methods.
+8. Use AERIQ source code to create a competing product or service.
+9. Remove copyright, trademark, ownership, or proprietary notices.
+10. Publish private or proprietary source code without authorization.
+11. Provide unauthorized third parties with access to protected portions
+    of the Software.
+
+=======================================================================
+5. SAAS ACCESS
+=======================================================================
+
+AERIQ may be provided as a Software-as-a-Service (SaaS) platform.
+
+Customers may receive limited rights to access and use functionality
+according to their applicable subscription, commercial agreement,
+service agreement, or written authorization.
+
+SaaS access does not grant ownership of:
+
+- AERIQ source code
+- Platform infrastructure
+- Proprietary algorithms
+- Calculation engines
+- AI systems
+- Platform architecture
+- Internal APIs
+- Proprietary documentation
+
+=======================================================================
+6. CUSTOMER DATA
+=======================================================================
+
+Customers retain their rights in farm and operational data they lawfully
+submit to AERIQ, subject to applicable agreements, privacy terms, and law.
+
+Ownership of customer data does not grant ownership of the AERIQ
+platform, algorithms, software, or intellectual property.
+
+Handling of personal information and customer data may additionally be
+governed by AERIQ's Privacy Policy and applicable agreements.
+
+=======================================================================
+7. THIRD-PARTY SOFTWARE
+=======================================================================
+
+AERIQ may contain or depend upon third-party software, libraries,
+frameworks, services, or open-source components.
+
+Those components remain subject to their respective licenses and terms.
+
+Nothing in this License is intended to restrict rights granted directly
+under an applicable third-party or open-source license.
+
+=======================================================================
+8. CONFIDENTIALITY
+=======================================================================
+
+Non-public AERIQ source code, technical documentation, algorithms,
+credentials, infrastructure information, security architecture,
+commercial information, and other materials identified or reasonably
+understood as confidential must not be disclosed without authorization
+from Aero Intelli.
+
+=======================================================================
+9. SECURITY
+=======================================================================
+
+Users must not attempt to:
+
+- Gain unauthorized access to AERIQ systems
+- Circumvent security controls
+- Interfere with platform availability
+- Access another customer's information without authorization
+- Introduce malicious software
+- Exploit vulnerabilities for unauthorized purposes
+
+Authorized security testing requires prior written permission from
+Aero Intelli unless otherwise permitted by applicable law.
+
+=======================================================================
+10. TRADEMARKS AND BRANDING
+=======================================================================
+
+This License does not grant permission to use the names, trademarks,
+logos, branding, or other brand assets of AERIQ or Aero Intelli except
+as expressly authorized.
+
+=======================================================================
+11. COMMERCIAL LICENSING
+=======================================================================
+
+Commercial redistribution, OEM integration, white-label deployment,
+source-code licensing, enterprise deployment, or other commercial uses
+outside ordinary authorized AERIQ access require a separate written
+agreement with Aero Intelli.
+
+=======================================================================
+12. TERMINATION
+=======================================================================
+
+Rights granted under this License may terminate when an authorized
+subscription, agreement, or permission expires or is terminated.
+
+Upon termination, the user must cease unauthorized use of protected
+AERIQ software and materials, subject to applicable agreements and law.
+
+=======================================================================
+13. NO WARRANTY
+=======================================================================
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS
+PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND,
+EXCEPT FOR WARRANTIES EXPRESSLY PROVIDED IN A SEPARATE WRITTEN
+AGREEMENT.
+
+AERIQ calculations, predictions, recommendations, alerts, and analytics
+are decision-support tools and should not replace appropriate
+professional aquaculture, engineering, veterinary, financial, safety,
+or regulatory judgment where such expertise is required.
+
+=======================================================================
+14. LIMITATION OF LIABILITY
+=======================================================================
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, AERO INTELLI SHALL
+NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM UNAUTHORIZED OR
+IMPROPER USE OF THE SOFTWARE.
+
+Any additional liability terms applicable to customers may be specified
+in the relevant commercial or service agreement.
+
+=======================================================================
+15. RESERVATION OF RIGHTS
+=======================================================================
+
+No rights are granted except those expressly provided under this License
+or another written agreement with Aero Intelli.
+
+All other rights are reserved.
+
+=======================================================================
+16. LICENSE VERSION
+=======================================================================
+
+License Name:
+AERIQ Proprietary Software License
+
+License Identifier:
+AERIQ-PSL-1.0
+
+Version:
+1.0
+
+Copyright:
+Copyright (c) 2026 Aero Intelli. All Rights Reserved.
+
+=======================================================================
+END OF AERIQ PROPRIETARY SOFTWARE LICENSE v1.0
+=======================================================================

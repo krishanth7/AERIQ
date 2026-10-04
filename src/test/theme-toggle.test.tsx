@@ -12,22 +12,23 @@ describe('ThemeToggle', () => {
       </ThemeProvider>
     );
 
-    const button = screen.getByRole('button', { name: /current theme/i });
+    const button = screen.getByRole('button', { name: /switch to (light|dark) mode/i });
     expect(button).toBeInTheDocument();
   });
 
-  it('opens theme selection menu and allows picking Light, Dark, or System', () => {
+  it('toggles theme on click between dark and light', () => {
     render(
       <ThemeProvider>
         <ThemeToggle />
       </ThemeProvider>
     );
 
-    const button = screen.getByRole('button', { name: /current theme/i });
+    const button = screen.getByRole('button', { name: /switch to (light|dark) mode/i });
+    const initialLabel = button.getAttribute('aria-label');
+
     fireEvent.click(button);
 
-    expect(screen.getByRole('menuitem', { name: /light/i })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /dark/i })).toBeInTheDocument();
-    expect(screen.getByRole('menuitem', { name: /system/i })).toBeInTheDocument();
+    const updatedLabel = button.getAttribute('aria-label');
+    expect(updatedLabel).not.toBe(initialLabel);
   });
 });

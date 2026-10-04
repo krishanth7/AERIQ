@@ -24,14 +24,24 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
     return (
       <Input
         ref={ref}
-        type={isVisible ? 'text' : 'password'}
         disabled={disabled}
+        {...props}
+        type={isVisible ? 'text' : 'password'}
         rightAddon={
           <button
             type="button"
-            onClick={() => setIsVisible(!isVisible)}
+            tabIndex={-1}
+            onMouseDown={(e) => {
+              // Prevent focus loss from the input field
+              e.preventDefault();
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsVisible((prev) => !prev);
+            }}
             disabled={disabled}
-            className="p-1 text-text-tertiary hover:text-text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-brand rounded"
+            className="p-1.5 text-text-tertiary hover:text-text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-brand rounded cursor-pointer select-none"
             aria-label={isVisible ? hideToggleLabel : showToggleLabel}
           >
             {isVisible ? (
@@ -41,7 +51,6 @@ export const PasswordField = React.forwardRef<HTMLInputElement, PasswordFieldPro
             )}
           </button>
         }
-        {...props}
       />
     );
   }

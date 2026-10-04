@@ -6,7 +6,7 @@ export const passwordCriteria = {
   hasUppercase: /[A-Z]/,
   hasLowercase: /[a-z]/,
   hasNumber: /[0-9]/,
-  hasSpecialChar: /[^A-Za-z0-9]/,
+  hasSpecialChar: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/,
 };
 
 export function checkPasswordRequirements(password: string = ''): PasswordRequirements {

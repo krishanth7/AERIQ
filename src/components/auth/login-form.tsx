@@ -146,13 +146,6 @@ export function LoginForm() {
           Create an account
         </Link>
       </div>
-
-      {/* Operational Hint for Evaluation / Testing */}
-      <div className="pt-4 border-t border-border/40 text-[11px] text-text-tertiary">
-        <p className="font-mono">Demo Accounts:</p>
-        <p className="mt-0.5">Standard: <span className="text-text-secondary">operator@aqua-farms.no</span></p>
-        <p>Test simulation: type <span className="text-text-secondary">wrong@aeriq.com</span> (invalid) or <span className="text-text-secondary">network-error@aeriq.com</span></p>
-      </div>
     </div>
   );
 }

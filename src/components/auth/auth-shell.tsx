@@ -44,44 +44,6 @@ export function AuthShell({ children }: AuthShellProps) {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-xs text-text-tertiary">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left border-t border-border/60 pt-4">
-          <p>© 2026 Aero Intelli. All rights reserved.</p>
-
-          <nav aria-label="Legal and Compliance" className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
-            <a
-              href="#privacy"
-              onClick={(e) => e.preventDefault()}
-              className="hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-            >
-              Privacy
-            </a>
-            <a
-              href="#terms"
-              onClick={(e) => e.preventDefault()}
-              className="hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-            >
-              Terms
-            </a>
-            <a
-              href="#security"
-              onClick={(e) => e.preventDefault()}
-              className="hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-            >
-              Security
-            </a>
-            <a
-              href="#accessibility"
-              onClick={(e) => e.preventDefault()}
-              className="hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-            >
-              Accessibility
-            </a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

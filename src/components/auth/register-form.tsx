@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, RegisterFormData, checkPasswordRequirements } from '@/lib/validation/auth-schemas';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -23,7 +23,6 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -40,9 +39,9 @@ export function RegisterForm() {
     },
   });
 
-  // Watch password for live requirements checklist
-  const passwordValue = useWatch({ control, name: 'password', defaultValue: '' });
-  const passwordRequirements = checkPasswordRequirements(passwordValue);
+  // Live password state for instantaneous requirements checklist updates
+  const [passwordInput, setPasswordInput] = useState('');
+  const passwordRequirements = checkPasswordRequirements(passwordInput);
 
   const onSubmit = async (data: RegisterFormData) => {
     setServerError(null);
@@ -197,23 +196,30 @@ export function RegisterForm() {
           required
           error={errors.password?.message}
         >
-          {({ id, error, 'aria-describedby': ariaDescribedBy }) => (
-            <PasswordField
-              id={id}
-              autoComplete="new-password"
-              placeholder="Create a password"
-              error={error}
-              aria-describedby={ariaDescribedBy}
-              disabled={isSubmitting}
-              {...register('password')}
-            />
-          )}
+          {({ id, error, 'aria-describedby': ariaDescribedBy }) => {
+            const pwdProps = register('password');
+            return (
+              <PasswordField
+                id={id}
+                autoComplete="new-password"
+                placeholder="Create a password"
+                error={error}
+                aria-describedby={ariaDescribedBy}
+                disabled={isSubmitting}
+                {...pwdProps}
+                onChange={(e) => {
+                  pwdProps.onChange(e);
+                  setPasswordInput(e.target.value);
+                }}
+              />
+            );
+          }}
         </FormField>
 
         {/* Password Requirements Guide */}
         <PasswordRequirementsView
           requirements={passwordRequirements}
-          hasInput={Boolean(passwordValue)}
+          hasInput={passwordInput.length > 0}
         />
 
         {/* Confirm Password */}

@@ -1,8 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
-:root {
+:root,
+html:not(.dark) {
+  color-scheme: light;
   /* AERIQ Light Theme Tokens */
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -37,7 +39,10 @@
   --focus-ring: rgba(13, 148, 136, 0.45);
 }
 
+:root.dark,
+html.dark,
 .dark {
+  color-scheme: dark;
   /* AERIQ Dark Theme Tokens - Industrial / Technical Blue-Black */
   --background: #080c14;
   --foreground: #f8fafc;
@@ -108,6 +113,12 @@ body {
 :focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+/* Hide native browser password reveal and clear icons so custom eye toggle operates smoothly */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
 }
 
 /* Custom scrollbar matching enterprise aesthetic */

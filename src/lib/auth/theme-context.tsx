@@ -17,46 +17,48 @@ const STORAGE_KEY = 'aeriq-theme-preference';
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<ThemePreference>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
-  const [mounted, setMounted] = useState(false);
+
+  const applyThemeToDOM = (pref: ThemePreference): 'light' | 'dark' => {
+    if (typeof window === 'undefined') return 'dark';
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const active = pref === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : pref;
+
+    const root = document.documentElement;
+    if (active === 'dark') {
+      root.classList.add('dark');
+      root.style.colorScheme = 'dark';
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.classList.remove('dark');
+      root.style.colorScheme = 'light';
+      root.setAttribute('data-theme', 'light');
+    }
+    return active;
+  };
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY) as ThemePreference | null;
-      if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        setThemeState(stored);
-      }
+      const initialPref: ThemePreference =
+        stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+      setThemeState(initialPref);
+      const active = applyThemeToDOM(initialPref);
+      setResolvedTheme(active);
     } catch {
-      // Storage access could fail in restricted iframes
+      const active = applyThemeToDOM('system');
+      setResolvedTheme(active);
     }
-    setMounted(true);
   }, []);
 
+  // Listen to OS media query changes when theme is 'system'
   useEffect(() => {
-    const root = document.documentElement;
+    if (typeof window === 'undefined') return;
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const applyTheme = () => {
-      let active: 'light' | 'dark';
-      if (theme === 'system') {
-        active = mediaQuery.matches ? 'dark' : 'light';
-      } else {
-        active = theme;
-      }
-
-      setResolvedTheme(active);
-
-      if (active === 'dark') {
-        root.classList.add('dark');
-      } else {
-        root.classList.remove('dark');
-      }
-    };
-
-    applyTheme();
 
     const handleChange = () => {
       if (theme === 'system') {
-        applyTheme();
+        const active = applyThemeToDOM('system');
+        setResolvedTheme(active);
       }
     };
 
@@ -71,10 +73,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore
     }
+    const active = applyThemeToDOM(newTheme);
+    setResolvedTheme(active);
   };
 
   const toggleTheme = () => {
-    // If currently dark, switch to light; if light, switch to dark
     const next = resolvedTheme === 'dark' ? 'light' : 'dark';
     setTheme(next);
   };

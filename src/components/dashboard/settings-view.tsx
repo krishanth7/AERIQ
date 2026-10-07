@@ -252,12 +252,50 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   });
   const [showSupportModal, setShowSupportModal] = useState(false);
 
+  // Load initial user settings from Cloud Firestore if available
+  React.useEffect(() => {
+    if (!user?.id) return;
+    getUserSettingsFromFirestore(user.id).then((res) => {
+      if (res.success && res.data) {
+        const d = res.data;
+        if (d.firstName || d.lastName) {
+          setGeneralData((prev) => ({
+            ...prev,
+            firstName: d.firstName || prev.firstName,
+            lastName: d.lastName || prev.lastName,
+            companyName: d.companyName || prev.companyName,
+            mobileNumber: d.mobileNumber || prev.mobileNumber,
+            email: d.email || prev.email,
+          }));
+        }
+        if (d.selectedSpecies) {
+          setSelectedSpecies(d.selectedSpecies as any);
+        }
+        if (d.customSpecies) {
+          setCustomSpecies(d.customSpecies);
+        }
+        if (d.metricTonsPerYear) {
+          setMetricTonsPerYear(d.metricTonsPerYear);
+        }
+        if (d.latitude) {
+          setLatitude(d.latitude);
+        }
+        if (d.longitude) {
+          setLongitude(d.longitude);
+        }
+        if (d.hasUpdatedOnce !== undefined) {
+          setHasUpdatedOnce(d.hasUpdatedOnce);
+        }
+      }
+    });
+  }, [user?.id]);
+
   const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
     setGeneralData((prev) => ({ ...prev, [field]: value }));
     setIsSaved(false);
   };
 
-  const handleSaveGeneral = (e: React.FormEvent) => {
+  const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
     if (hasUpdatedOnce) {
       setShowSupportModal(true);
@@ -265,27 +303,43 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSaved(true);
-      setHasUpdatedOnce(true);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('aeriq_settings_updated_once', 'true');
-      }
-      if (onUpdateUser) {
-        onUpdateUser({
-          firstName: generalData.firstName,
-          lastName: generalData.lastName,
-          fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
-          companyName: generalData.companyName,
-          mobileNumber: generalData.mobileNumber,
-          email: generalData.email,
-        });
-      }
-    }, 400);
+    const userId = user?.id || 'usr_default';
+    const payload = {
+      firstName: generalData.firstName,
+      lastName: generalData.lastName,
+      fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
+      companyName: generalData.companyName,
+      mobileNumber: generalData.mobileNumber,
+      email: generalData.email,
+      selectedSpecies,
+      customSpecies,
+      metricTonsPerYear,
+      latitude,
+      longitude,
+      hasUpdatedOnce: true,
+    };
+
+    await saveUserSettingsToFirestore(userId, payload);
+
+    setIsSubmitting(false);
+    setIsSaved(true);
+    setHasUpdatedOnce(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('aeriq_settings_updated_once', 'true');
+    }
+    if (onUpdateUser) {
+      onUpdateUser({
+        firstName: generalData.firstName,
+        lastName: generalData.lastName,
+        fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
+        companyName: generalData.companyName,
+        mobileNumber: generalData.mobileNumber,
+        email: generalData.email,
+      });
+    }
   };
 
-  const handleSaveConfig = (e: React.FormEvent) => {
+  const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
     if (hasUpdatedOnce) {
       setShowSupportModal(true);
@@ -293,14 +347,30 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSaved(true);
-      setHasUpdatedOnce(true);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('aeriq_settings_updated_once', 'true');
-      }
-    }, 400);
+    const userId = user?.id || 'usr_default';
+    const payload = {
+      firstName: generalData.firstName,
+      lastName: generalData.lastName,
+      fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
+      companyName: generalData.companyName,
+      mobileNumber: generalData.mobileNumber,
+      email: generalData.email,
+      selectedSpecies,
+      customSpecies,
+      metricTonsPerYear,
+      latitude,
+      longitude,
+      hasUpdatedOnce: true,
+    };
+
+    await saveUserSettingsToFirestore(userId, payload);
+
+    setIsSubmitting(false);
+    setIsSaved(true);
+    setHasUpdatedOnce(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('aeriq_settings_updated_once', 'true');
+    }
   };
 
   const settingsMenu = [

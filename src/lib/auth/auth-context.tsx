@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthUser, SessionState, AuthResponse } from '@/types/auth';
 import { LoginFormData, RegisterFormData, ForgotPasswordFormData } from '@/lib/validation/auth-schemas';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase/config';
 import {
   registerUserWithFirebase,
   loginUserWithFirebase,
@@ -29,10 +32,76 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const RESEND_COOLDOWN_SECONDS = 60;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [sessionState, setSessionState] = useState<SessionState>('unauthenticated');
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('aeriq_auth_user');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          // Ignore
+        }
+      }
+    }
+    return null;
+  });
+
+  const [sessionState, setSessionState] = useState<SessionState>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('aeriq_auth_user');
+      if (stored) return 'authenticated';
+    }
+    return 'unauthenticated';
+  });
+
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState<number>(0);
+
+  // Synchronize session to localStorage to keep user logged in across page reloads/reopens
+  const setPersistedUser = (authUser: AuthUser | null, state: SessionState) => {
+    setUser(authUser);
+    setSessionState(state);
+    if (typeof window !== 'undefined') {
+      if (authUser) {
+        localStorage.setItem('aeriq_auth_user', JSON.stringify(authUser));
+      } else {
+        localStorage.removeItem('aeriq_auth_user');
+      }
+    }
+  };
+
+  // Firebase Auth persistent listener across reloads & tab reopens
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        let profileData: Partial<AuthUser> = {};
+        try {
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          if (userDoc.exists()) {
+            profileData = userDoc.data() as Partial<AuthUser>;
+          }
+        } catch {
+          // Offline fallback
+        }
+
+        const authUser: AuthUser = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || profileData.email || '',
+          firstName: profileData.firstName || '',
+          lastName: profileData.lastName || '',
+          fullName: firebaseUser.displayName || profileData.fullName || firebaseUser.email?.split('@')[0] || 'User',
+          companyName: profileData.companyName || '',
+          mobileNumber: profileData.mobileNumber || '',
+          isEmailVerified: firebaseUser.emailVerified,
+          createdAt: profileData.createdAt || new Date().toISOString(),
+        };
+
+        setPersistedUser(authUser, 'authenticated');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // Cooldown countdown timer
   useEffect(() => {

@@ -56,14 +56,6 @@ export function MandatoryTermsModal({
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand bg-brand-subtle rounded border border-brand/20">
-                  Compliance Notice
-                </span>
-                <span className="text-xs text-text-tertiary">
-                  Version 1.0 · Legally Binding
-                </span>
-              </div>
               <h2
                 id="terms-modal-title"
                 className="text-xl sm:text-2xl font-bold tracking-tight text-text-primary"

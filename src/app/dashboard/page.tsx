@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Button } from '@/components/ui/button';
+import { MandatoryTermsModal } from '@/components/auth/mandatory-terms-modal';
 import {
   Waves,
   Activity,
@@ -27,8 +28,28 @@ export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [selectedFarm, setSelectedFarm] = useState('Nordic Marine RAS - Facility 01');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const accepted = sessionStorage.getItem('aeriq_terms_accepted');
+      if (accepted !== 'true') {
+        setShowTermsModal(true);
+      }
+    }
+  }, []);
+
+  const handleAcceptTerms = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('aeriq_terms_accepted', 'true');
+    }
+    setShowTermsModal(false);
+  };
 
   const handleSignOut = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('aeriq_terms_accepted');
+    }
     logout();
     router.push('/login');
   };
@@ -78,6 +99,11 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex flex-col">
+      <MandatoryTermsModal
+        isOpen={showTermsModal}
+        onAccept={handleAcceptTerms}
+      />
+
       {/* Top Application Bar */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

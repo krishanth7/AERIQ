@@ -11,17 +11,21 @@ import {
   Waves,
   Activity,
   CheckCircle2,
-  Clock,
-  AlertTriangle,
   FileCheck,
   ShieldCheck,
   LogOut,
-  ChevronDown,
   Fish,
   Thermometer,
   Droplets,
   PlusCircle,
   Building,
+  LayoutDashboard,
+  Settings,
+  ClipboardCheck,
+  Menu,
+  X,
+  Layers,
+  ChevronRight,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -29,6 +33,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [selectedFarm, setSelectedFarm] = useState('Nordic Marine RAS - Facility 01');
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -53,6 +59,51 @@ export default function DashboardPage() {
     logout();
     router.push('/login');
   };
+
+  const navItems = [
+    {
+      id: 'dashboard',
+      label: 'Dashboard Overview',
+      icon: LayoutDashboard,
+      badge: undefined,
+    },
+    {
+      id: 'water-quality',
+      label: 'Water Quality Telemetry',
+      icon: Droplets,
+      badge: 'Live',
+    },
+    {
+      id: 'biomass',
+      label: 'Fish Biomass & Feeding',
+      icon: Fish,
+      badge: undefined,
+    },
+    {
+      id: 'checklist',
+      label: '5-Interval Checklist',
+      icon: FileCheck,
+      badge: '3/5',
+    },
+    {
+      id: 'ras-biofilter',
+      label: 'RAS Biofilter Systems',
+      icon: Waves,
+      badge: undefined,
+    },
+    {
+      id: 'compliance',
+      label: 'Compliance & Audit',
+      icon: ShieldCheck,
+      badge: 'Active',
+    },
+    {
+      id: 'settings',
+      label: 'Facility Settings',
+      icon: Settings,
+      badge: undefined,
+    },
+  ];
 
   const checklistIntervals = [
     {
@@ -104,10 +155,20 @@ export default function DashboardPage() {
         onAccept={handleAcceptTerms}
       />
 
-      {/* Top Application Bar */}
+      {/* Header Bar */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4 sm:gap-6">
+            {/* Mobile Hamburger Toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 text-text-secondary hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-brand rounded-md"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
             <Link
               href="/dashboard"
               className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-md p-1"
@@ -168,158 +229,240 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Dashboard Workspace */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Compliance Banner */}
-        <div className="p-4 sm:p-5 rounded-panel bg-brand-subtle/40 border border-brand/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand shrink-0">
-              <ShieldCheck className="w-5 h-5" />
+      {/* Main Container with Left Navigation Sidebar + Content Workspace */}
+      <div className="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row">
+        {/* Left Navigation Sidebar Menu */}
+        <aside
+          className={`lg:w-64 border-r border-border bg-surface/50 backdrop-blur-sm p-4 space-y-6 lg:block ${
+            mobileMenuOpen ? 'block fixed inset-x-0 top-16 bottom-0 z-30 bg-surface' : 'hidden'
+          }`}
+        >
+          {/* Facility Header (Mobile View) */}
+          <div className="md:hidden pb-3 border-b border-border space-y-1">
+            <div className="text-xs font-semibold text-text-primary">
+              {user?.companyName || 'Venigem Advanced Technologies'}
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-text-primary">
-                  Mandatory Digital Record Protocol Active
-                </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-status-success-bg text-status-success border border-status-success/20">
-                  Compliant
-                </span>
+            <div className="text-[11px] text-text-secondary">{selectedFarm}</div>
+          </div>
+
+          {/* Navigation Section */}
+          <div className="space-y-1">
+            <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+              Operational Modules
+            </div>
+            <nav className="space-y-1">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                      isActive
+                        ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary/70'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge && (
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                          isActive
+                            ? 'bg-neutral-950 text-brand'
+                            : 'bg-surface-secondary text-text-tertiary border border-border'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* System Status Summary Widget */}
+          <div className="pt-4 border-t border-border space-y-3">
+            <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
+              System Gateway
+            </div>
+            <div className="p-3 rounded-lg bg-surface-secondary/60 border border-border space-y-2 text-xs">
+              <div className="flex items-center justify-between text-text-secondary">
+                <span>Biofilter Capacity</span>
+                <span className="font-semibold text-status-success">98.4%</span>
               </div>
-              <p className="text-xs text-text-secondary mt-0.5 max-w-3xl leading-relaxed">
-                Venigem Advanced Technologies SaaS-based Feed & Fish Management System requirement: 5 daily monitoring entries mandated. 3 completed, 2 remaining today. All inputs reflect verified real-time measurements.
-              </p>
+              <div className="w-full bg-border h-1.5 rounded-full overflow-hidden">
+                <div className="bg-status-success h-full w-[98%]" />
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-text-tertiary pt-1">
+                <span>3 Tanks Online</span>
+                <span className="font-mono">42,500 kg</span>
+              </div>
             </div>
           </div>
+        </aside>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
-              className="w-full md:w-auto text-xs"
-            >
-              Log Interval 4 Entry
-            </Button>
-          </div>
-        </div>
+        {/* Main Workspace Content Area */}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 space-y-8 min-w-0">
+          {/* Compliance Banner */}
+          <div className="p-4 sm:p-5 rounded-panel bg-brand-subtle/40 border border-brand/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-text-primary">
+                    Mandatory Digital Record Protocol Active
+                  </h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-status-success-bg text-status-success border border-status-success/20">
+                    Compliant
+                  </span>
+                </div>
+                <p className="text-xs text-text-secondary mt-0.5 max-w-3xl leading-relaxed">
+                  Venigem Advanced Technologies SaaS-based Feed & Fish Management System requirement: 5 daily monitoring entries mandated. 3 completed, 2 remaining today. All inputs reflect verified real-time measurements.
+                </p>
+              </div>
+            </div>
 
-        {/* Live Water Quality & RAS Telemetry Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium">Dissolved Oxygen</span>
-              <Droplets className="w-4 h-4 text-brand" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              8.6 <span className="text-sm font-normal text-text-tertiary">mg/L</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>102% Saturation (Target: 95-105%)</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium">TAN (Ammonia Nitrogen)</span>
-              <Activity className="w-4 h-4 text-status-info" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              0.012 <span className="text-sm font-normal text-text-tertiary">mg/L</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Optimal (Threshold: &lt;0.05 mg/L)</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium">Water Temperature</span>
-              <Thermometer className="w-4 h-4 text-status-warning" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              14.1 <span className="text-sm font-normal text-text-tertiary">°C</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Within growth curve range</span>
-            </div>
-          </div>
-
-          <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
-            <div className="flex items-center justify-between text-text-secondary mb-3">
-              <span className="text-xs font-medium">Active Fish Biomass</span>
-              <Fish className="w-4 h-4 text-brand" />
-            </div>
-            <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
-              42,500 <span className="text-sm font-normal text-text-tertiary">kg</span>
-            </div>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-text-secondary">
-              <span>Avg FCR: 1.08 · 3 Culture Tanks</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 5-Point Mandatory Monitoring Checklist Log */}
-        <div className="p-6 rounded-panel bg-surface border border-border shadow-card space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
-            <div>
-              <h3 className="text-base font-semibold text-text-primary">
-                Daily 5-Interval Compliance Checklist
-              </h3>
-              <p className="text-xs text-text-secondary mt-0.5">
-                Venigem Advanced Technologies operational protocol — Actual measurements recorded at prescribed monitoring intervals.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-text-tertiary">
-              <FileCheck className="w-4 h-4 text-brand" />
-              <span>Today: 3 / 5 Entries Recorded</span>
-            </div>
-          </div>
-
-          <div className="divide-y divide-border overflow-x-auto">
-            {checklistIntervals.map((item, idx) => (
-              <div
-                key={idx}
-                className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <Button
+                variant="primary"
+                size="sm"
+                leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
+                className="w-full md:w-auto text-xs"
               >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-text-primary">
-                      {item.interval}: {item.title}
-                    </span>
-                    {item.status === 'completed' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-success-bg text-status-success border border-status-success/20">
-                        Recorded
-                      </span>
-                    )}
-                    {item.status === 'in-progress' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-warning-bg text-status-warning border border-status-warning/20 animate-pulse">
-                        Due Now
-                      </span>
-                    )}
-                    {item.status === 'scheduled' && (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-secondary text-text-tertiary border border-border">
-                        Scheduled
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-text-secondary font-mono">{item.values}</p>
-                </div>
-
-                <div className="text-left sm:text-right shrink-0">
-                  <div className="text-text-primary font-medium">{item.operator}</div>
-                  <div className="text-text-tertiary text-[11px]">{item.time}</div>
-                </div>
-              </div>
-            ))}
+                Log Interval 4 Entry
+              </Button>
+            </div>
           </div>
-        </div>
-      </main>
+
+          {/* Live Water Quality & RAS Telemetry Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
+              <div className="flex items-center justify-between text-text-secondary mb-3">
+                <span className="text-xs font-medium">Dissolved Oxygen</span>
+                <Droplets className="w-4 h-4 text-brand" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                8.6 <span className="text-sm font-normal text-text-tertiary">mg/L</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>102% Saturation (Target: 95-105%)</span>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
+              <div className="flex items-center justify-between text-text-secondary mb-3">
+                <span className="text-xs font-medium">TAN (Ammonia Nitrogen)</span>
+                <Activity className="w-4 h-4 text-status-info" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                0.012 <span className="text-sm font-normal text-text-tertiary">mg/L</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Optimal (Threshold: &lt;0.05 mg/L)</span>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
+              <div className="flex items-center justify-between text-text-secondary mb-3">
+                <span className="text-xs font-medium">Water Temperature</span>
+                <Thermometer className="w-4 h-4 text-status-warning" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                14.1 <span className="text-sm font-normal text-text-tertiary">°C</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-status-success">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Within growth curve range</span>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-panel bg-surface border border-border shadow-card">
+              <div className="flex items-center justify-between text-text-secondary mb-3">
+                <span className="text-xs font-medium">Active Fish Biomass</span>
+                <Fish className="w-4 h-4 text-brand" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                42,500 <span className="text-sm font-normal text-text-tertiary">kg</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-text-secondary">
+                <span>Avg FCR: 1.08 · 3 Culture Tanks</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 5-Point Mandatory Monitoring Checklist Log */}
+          <div className="p-6 rounded-panel bg-surface border border-border shadow-card space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border">
+              <div>
+                <h3 className="text-base font-semibold text-text-primary">
+                  Daily 5-Interval Compliance Checklist
+                </h3>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Venigem Advanced Technologies operational protocol — Actual measurements recorded at prescribed monitoring intervals.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono text-text-tertiary">
+                <FileCheck className="w-4 h-4 text-brand" />
+                <span>Today: 3 / 5 Entries Recorded</span>
+              </div>
+            </div>
+
+            <div className="divide-y divide-border overflow-x-auto">
+              {checklistIntervals.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-text-primary">
+                        {item.interval}: {item.title}
+                      </span>
+                      {item.status === 'completed' && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-success-bg text-status-success border border-status-success/20">
+                          Recorded
+                        </span>
+                      )}
+                      {item.status === 'in-progress' && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-status-warning-bg text-status-warning border border-status-warning/20 animate-pulse">
+                          Due Now
+                        </span>
+                      )}
+                      {item.status === 'scheduled' && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-secondary text-text-tertiary border border-border">
+                          Scheduled
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-text-secondary font-mono">{item.values}</p>
+                  </div>
+
+                  <div className="text-left sm:text-right shrink-0">
+                    <div className="text-text-primary font-medium">{item.operator}</div>
+                    <div className="text-text-tertiary text-[11px]">{item.time}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
 
       {/* Footer */}
-      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-xs text-text-tertiary flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-border mt-auto">
+      <footer className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-5 text-xs text-text-tertiary flex flex-col sm:flex-row items-center justify-between gap-2 border-t border-border mt-auto">
         <span>© 2026 Aero Intelli. AERIQ — Intelligent RAS Farm Management.</span>
         <span>Venigem Advanced Technologies SaaS Platform</span>
       </footer>

@@ -14,6 +14,9 @@ import {
   Bell,
   Sliders,
   Lock,
+  MapPin,
+  Globe,
+  Locate,
 } from 'lucide-react';
 
 interface SettingsViewProps {
@@ -65,6 +68,27 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   const [selectedSpecies, setSelectedSpecies] = useState<'Murrel' | 'Vannamei Shrimp' | 'Mud Crab' | 'Other'>('Murrel');
   const [customSpecies, setCustomSpecies] = useState('');
   const [metricTonsPerYear, setMetricTonsPerYear] = useState('500');
+
+  // Location state (Latitude & Longitude)
+  const [latitude, setLatitude] = useState('16.5449');
+  const [longitude, setLongitude] = useState('81.5212');
+
+  const handleDetectLocation = () => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude.toFixed(4));
+          setLongitude(position.coords.longitude.toFixed(4));
+          setIsSaved(false);
+        },
+        () => {
+          // Fallback location on permission deny or timeout
+          setLatitude('16.5449');
+          setLongitude('81.5212');
+        }
+      );
+    }
+  };
 
   const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
     setGeneralData((prev) => ({ ...prev, [field]: value }));
@@ -343,6 +367,87 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                     />
                   )}
                 </FormField>
+
+                {/* Site Location & Map Preview */}
+                <div className="pt-3 border-t border-border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-semibold text-text-primary flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-brand" />
+                      <span>Site Location Confirmation</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleDetectLocation}
+                      className="text-[11px] font-medium text-brand hover:text-brand-hover flex items-center gap-1 bg-brand-subtle/40 px-2.5 py-1 rounded-md border border-brand/20 transition-colors"
+                    >
+                      <Locate className="w-3 h-3" />
+                      <span>Detect Location</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <FormField id="latitude-input" label="Latitude">
+                      {({ id }) => (
+                        <Input
+                          id={id}
+                          type="text"
+                          value={latitude}
+                          onChange={(e) => {
+                            setLatitude(e.target.value);
+                            setIsSaved(false);
+                          }}
+                          placeholder="e.g. 16.5449"
+                        />
+                      )}
+                    </FormField>
+
+                    <FormField id="longitude-input" label="Longitude">
+                      {({ id }) => (
+                        <Input
+                          id={id}
+                          type="text"
+                          value={longitude}
+                          onChange={(e) => {
+                            setLongitude(e.target.value);
+                            setIsSaved(false);
+                          }}
+                          placeholder="e.g. 81.5212"
+                        />
+                      )}
+                    </FormField>
+                  </div>
+
+                  {/* Interactive Map Preview */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-medium text-text-secondary flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-brand" />
+                        <span>Map Preview</span>
+                      </span>
+                      <span className="text-[10px] text-text-muted font-mono">
+                        {latitude || '0.0000'}°, {longitude || '0.0000'}°
+                      </span>
+                    </div>
+
+                    <div className="relative w-full h-56 rounded-xl overflow-hidden border border-border bg-surface-secondary shadow-inner">
+                      <iframe
+                        title="Site Location Map Preview"
+                        className="w-full h-full border-0 filter contrast-[1.05]"
+                        loading="lazy"
+                        allowFullScreen
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${(parseFloat(longitude) || 81.5212) - 0.02}%2C${(parseFloat(latitude) || 16.5449) - 0.02}%2C${(parseFloat(longitude) || 81.5212) + 0.02}%2C${(parseFloat(latitude) || 16.5449) + 0.02}&layer=mapnik&marker=${parseFloat(latitude) || 16.5449}%2C${parseFloat(longitude) || 81.5212}`}
+                      />
+
+                      {/* Glassmorphism Floating Coordinate Badge */}
+                      <div className="absolute bottom-3 left-3 pointer-events-none px-3 py-1.5 rounded-lg bg-neutral-950/85 backdrop-blur-md border border-white/10 text-[11px] text-white flex items-center gap-2 shadow-elevated">
+                        <MapPin className="w-3.5 h-3.5 text-brand shrink-0 animate-bounce" />
+                        <span className="font-mono text-[10.5px] font-semibold tracking-wide">
+                          {latitude || '16.5449'}° N, {longitude || '81.5212'}° E
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Save Icon Only Button with Liquid Glass Tooltip */}
                 <div className="pt-2 flex items-center justify-end">

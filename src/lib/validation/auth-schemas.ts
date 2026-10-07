@@ -103,11 +103,7 @@ export const registerSchema = z
     confirmPassword: z
       .string()
       .min(1, 'Confirm your password.'),
-    agreeToTerms: z
-      .boolean()
-      .refine((val) => val === true, {
-        message: 'You must agree to the Terms of Service and Privacy Policy.',
-      }),
+    agreeToTerms: z.boolean().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match.',

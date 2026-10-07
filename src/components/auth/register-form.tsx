@@ -11,7 +11,6 @@ import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PasswordField } from '@/components/auth/password-field';
 import { PasswordRequirementsView } from '@/components/auth/password-requirements';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
 
@@ -35,7 +34,6 @@ export function RegisterForm() {
       mobileNumber: '',
       password: '',
       confirmPassword: '',
-      agreeToTerms: false,
     },
   });
 
@@ -242,48 +240,12 @@ export function RegisterForm() {
           )}
         </FormField>
 
-        {/* Terms of Service & Privacy Policy Checkbox */}
-        <div className="pt-1">
-          <Checkbox
-            id="agreeToTerms"
-            error={Boolean(errors.agreeToTerms)}
-            disabled={isSubmitting}
-            {...register('agreeToTerms')}
-            label={
-              <span>
-                I agree to the{' '}
-                <a
-                  href="#terms"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-brand hover:underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-                >
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a
-                  href="#privacy"
-                  onClick={(e) => e.preventDefault()}
-                  className="text-brand hover:underline font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
-                >
-                  Privacy Policy
-                </a>
-                .
-              </span>
-            }
-          />
-          {errors.agreeToTerms && (
-            <p className="text-xs text-status-danger mt-1.5 pl-6" role="alert">
-              {errors.agreeToTerms.message}
-            </p>
-          )}
-        </div>
-
         {/* Submit Button */}
         <Button
           type="submit"
           variant="primary"
           size="lg"
-          className="w-full mt-3"
+          className="w-full mt-4 rounded-full"
           isLoading={isSubmitting}
           loadingText="Creating account…"
         >
@@ -296,7 +258,7 @@ export function RegisterForm() {
         <span>Already have an account? </span>
         <Link
           href="/login"
-          className="text-brand font-medium hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
+          className="text-neutral-900 dark:text-brand font-semibold hover:underline transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand rounded"
         >
           Sign in
         </Link>

@@ -55,9 +55,9 @@ module.exports = {
         ],
       },
       borderRadius: {
-        input: '9px',
-        btn: '9px',
-        panel: '14px',
+        input: '10px',
+        btn: '9999px',
+        panel: '20px',
       },
       boxShadow: {
         subtle: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',

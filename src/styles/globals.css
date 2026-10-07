@@ -5,30 +5,30 @@
 :root,
 html:not(.dark) {
   color-scheme: light;
-  /* AERIQ Light Theme Tokens */
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Light Mode: Pure White Canvas */
+  --background: #ffffff;
+  --foreground: #171717;
 
   --surface: #ffffff;
-  --surface-secondary: #f1f5f9;
+  --surface-secondary: #f5f5f5;
   --surface-elevated: #ffffff;
 
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --border: #e5e5e5;
+  --border-strong: #d4d4d4;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-tertiary: #a3a3a3;
 
-  /* Primary Accent: Deep Aqua / Teal */
-  --brand: #0d9488;
-  --brand-hover: #0f766e;
-  --brand-active: #115e59;
-  --brand-subtle: #f0fdfa;
+  /* Button & Accent Color: #c1ff72 */
+  --brand: #c1ff72;
+  --brand-hover: #b0f558;
+  --brand-active: #9fe644;
+  --brand-subtle: rgba(193, 255, 114, 0.25);
 
   /* Status Tokens */
-  --success: #059669;
-  --success-bg: #ecfdf5;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
   --warning: #d97706;
   --warning-bg: #fffbeb;
   --danger: #dc2626;
@@ -36,45 +36,45 @@ html:not(.dark) {
   --info: #0284c7;
   --info-bg: #f0f9ff;
 
-  --focus-ring: rgba(13, 148, 136, 0.45);
+  --focus-ring: rgba(193, 255, 114, 0.7);
 }
 
 :root.dark,
 html.dark,
 .dark {
   color-scheme: dark;
-  /* AERIQ Dark Theme Tokens - Industrial / Technical Blue-Black */
-  --background: #080c14;
-  --foreground: #f8fafc;
+  /* Dark Mode: #262626 Background */
+  --background: #262626;
+  --foreground: #ffffff;
 
-  --surface: #0f172a;
-  --surface-secondary: #162035;
-  --surface-elevated: #1a263e;
+  --surface: #262626;
+  --surface-secondary: #1c1c1c;
+  --surface-elevated: #303030;
 
-  --border: #1e2c44;
-  --border-strong: #2c3f60;
+  --border: #383838;
+  --border-strong: #4a4a4a;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
+  --text-primary: #ffffff;
+  --text-secondary: #d4d4d4;
+  --text-tertiary: #a3a3a3;
 
-  /* Slightly Brighter Aqua/Teal for Dark Mode readability */
-  --brand: #14b8a6;
-  --brand-hover: #2dd4bf;
-  --brand-active: #0d9488;
-  --brand-subtle: rgba(20, 184, 166, 0.12);
+  /* Button & Accent Color: #c1ff72 */
+  --brand: #c1ff72;
+  --brand-hover: #b0f558;
+  --brand-active: #9fe644;
+  --brand-subtle: rgba(193, 255, 114, 0.15);
 
   /* Dark Status Tokens */
-  --success: #34d399;
-  --success-bg: rgba(52, 211, 153, 0.12);
+  --success: #4ade80;
+  --success-bg: rgba(74, 222, 128, 0.15);
   --warning: #fbbf24;
-  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-bg: rgba(251, 191, 36, 0.15);
   --danger: #f87171;
-  --danger-bg: rgba(248, 113, 113, 0.12);
+  --danger-bg: rgba(248, 113, 113, 0.15);
   --info: #38bdf8;
-  --info-bg: rgba(56, 189, 248, 0.12);
+  --info-bg: rgba(56, 189, 248, 0.15);
 
-  --focus-ring: rgba(45, 212, 191, 0.5);
+  --focus-ring: rgba(193, 255, 114, 0.65);
 }
 
 * {

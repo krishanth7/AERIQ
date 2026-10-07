@@ -61,7 +61,7 @@ export function ForgotPasswordForm() {
 
         <div className="pt-2">
           <Link href="/login" className="w-full block">
-            <Button variant="secondary" size="md" className="w-full" leftIcon={<ArrowLeft className="w-4 h-4" />}>
+            <Button variant="secondary" size="md" className="w-full rounded-full" leftIcon={<ArrowLeft className="w-4 h-4" />}>
               Back to sign in
             </Button>
           </Link>
@@ -115,7 +115,7 @@ export function ForgotPasswordForm() {
           type="submit"
           variant="primary"
           size="lg"
-          className="w-full mt-2"
+          className="w-full mt-2 rounded-full"
           isLoading={isSubmitting}
           loadingText="Sending instructions…"
         >

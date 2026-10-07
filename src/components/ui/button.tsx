@@ -31,7 +31,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium transition-colors select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none rounded-btn';
+      'inline-flex items-center justify-center font-medium transition-all duration-200 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 ring-offset-surface disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none rounded-full active:scale-[0.98] shadow-sm';
 
     const sizeStyles = {
       sm: 'h-9 px-3 text-xs tracking-normal gap-1.5',
@@ -41,7 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-brand hover:bg-brand-hover active:bg-brand-active text-white shadow-subtle',
+        'bg-brand hover:bg-brand-hover active:bg-brand-active text-neutral-950 font-semibold shadow-subtle',
       secondary:
         'bg-surface-secondary text-text-primary hover:bg-border/60 active:bg-border',
       outline:

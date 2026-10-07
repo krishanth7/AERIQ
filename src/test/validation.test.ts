@@ -90,7 +90,7 @@ describe('Validation Schemas & Utilities', () => {
       }
     });
 
-    it('fails when terms are not agreed to', () => {
+    it('succeeds without agreeToTerms field', () => {
       const result = registerSchema.safeParse({
         firstName: 'Alex',
         lastName: 'Morgan',
@@ -99,16 +99,8 @@ describe('Validation Schemas & Utilities', () => {
         email: 'alex@aeriq.com',
         password: 'SecurePassword123!',
         confirmPassword: 'SecurePassword123!',
-        agreeToTerms: false,
       });
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(
-          result.error.issues.some((i) =>
-            i.message.includes('agree to the Terms of Service')
-          )
-        ).toBe(true);
-      }
+      expect(result.success).toBe(true);
     });
 
     it('fails when password is under 12 characters', () => {

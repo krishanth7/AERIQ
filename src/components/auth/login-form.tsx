@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
 import { ArrowLeft, KeyRound, CheckCircle2 } from 'lucide-react';
 
+import { MandatoryTermsModal } from '@/components/auth/mandatory-terms-modal';
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,6 +28,7 @@ export function LoginForm() {
 
   const { login, requestPasswordReset } = useAuth();
   const [view, setView] = useState<'login' | 'forgot-password'>('login');
+  const [showTermsModal, setShowTermsModal] = useState(false);
   
   // Login State
   const [loginError, setLoginError] = useState<string | null>(
@@ -72,16 +75,22 @@ export function LoginForm() {
     try {
       const response = await login(data);
       if (response.success) {
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('aeriq_terms_accepted', 'true');
-        }
-        router.push('/dashboard');
+        // Display Mandatory Digital Record terms message modal on every login
+        setShowTermsModal(true);
       } else {
         setLoginError(response.error || 'The email or password is incorrect.');
       }
     } catch {
       setLoginError("We couldn't connect to AERIQ. Check your connection and try again.");
     }
+  };
+
+  const handleAcceptTerms = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('aeriq_terms_accepted', 'true');
+    }
+    setShowTermsModal(false);
+    router.push('/dashboard');
   };
 
   // Switch to Forgot Password view pre-populating whatever email user typed
@@ -219,6 +228,11 @@ export function LoginForm() {
   // RENDER: Main Login View
   return (
     <div className="w-full space-y-6 animate-fade-in">
+      <MandatoryTermsModal
+        isOpen={showTermsModal}
+        onAccept={handleAcceptTerms}
+      />
+
       {/* Form Header */}
       <div className="space-y-1.5">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">

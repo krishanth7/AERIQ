@@ -61,9 +61,10 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
     email: user?.email || 'operator@aqua-farms.no',
   });
 
-  // Species state
+  // Species & Production state
   const [selectedSpecies, setSelectedSpecies] = useState<'Murrel' | 'Vannamei Shrimp' | 'Mud Crab' | 'Other'>('Murrel');
   const [customSpecies, setCustomSpecies] = useState('');
+  const [metricTonsPerYear, setMetricTonsPerYear] = useState('500');
 
   const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
     setGeneralData((prev) => ({ ...prev, [field]: value }));
@@ -326,6 +327,22 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                     </FormField>
                   </div>
                 )}
+
+                <FormField id="metric-tons-input" label="Metric Ton Per Year (MT/year)">
+                  {({ id }) => (
+                    <Input
+                      id={id}
+                      type="number"
+                      min="0"
+                      value={metricTonsPerYear}
+                      onChange={(e) => {
+                        setMetricTonsPerYear(e.target.value);
+                        setIsSaved(false);
+                      }}
+                      placeholder="e.g. 500"
+                    />
+                  )}
+                </FormField>
 
                 {/* Save Icon Only Button with Liquid Glass Tooltip */}
                 <div className="pt-2 flex items-center justify-end">

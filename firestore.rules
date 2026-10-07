@@ -1,9 +1,50 @@
 rules_version = '2';
 
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId} (matches request.auth.uid)
+// Fields:
+//   - firstName: string (required, 1-100 chars)
+//   - lastName: string (required, 1-100 chars)
+//   - email: string (required, valid email pattern, matches auth token)
+//   - companyName: string (required, 1-150 chars)
+//   - mobileNumber: string (required, 1-50 chars)
+//   - fullName: string (optional, 1-200 chars)
+//   - createdAt: string/timestamp (optional)
+//   - selectedSpecies: string (optional, max 100 chars)
+//   - customSpecies: string (optional, max 100 chars)
+//   - metricTonsPerYear: string/number (optional, max 50 chars)
+//   - latitude: string (optional, max 50 chars)
+//   - longitude: string (optional, max 50 chars)
+//
+// Collection: organizations
+// Document ID: {orgId}
+// Fields:
+//   - name: string (required)
+//   - ownerId: string (required, matches request.auth.uid)
+//
+// Collection: farms
+// Document ID: {farmId}
+// Fields:
+//   - name: string (required)
+//   - ownerId: string (required, matches request.auth.uid)
+//   - species: string (optional)
+//   - metricTonsPerYear: string (optional)
+//   - latitude: string (optional)
+//   - longitude: string (optional)
+//
+// ===============================================================
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
     function isAuthenticated() {
       return request.auth != null;
     }
@@ -12,24 +53,63 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // User profile collection
-    // Users can read authenticated profiles and write only their own record
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+        (request.resource.data[field] is string &&
+         request.resource.data[field].size() >= minLen &&
+         request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidUser(data) {
+      return data.firstName is string && data.firstName.size() >= 1 && data.firstName.size() <= 100 &&
+             data.lastName is string && data.lastName.size() >= 1 && data.lastName.size() <= 100 &&
+             data.email is string && isValidEmail(data.email) &&
+             data.companyName is string && data.companyName.size() >= 1 && data.companyName.size() <= 150 &&
+             data.mobileNumber is string && data.mobileNumber.size() >= 1 && data.mobileNumber.size() <= 50 &&
+             isValidOptionalString('fullName', 0, 200) &&
+             isValidOptionalString('selectedSpecies', 0, 100) &&
+             isValidOptionalString('customSpecies', 0, 100) &&
+             isValidOptionalString('metricTonsPerYear', 0, 50) &&
+             isValidOptionalString('latitude', 0, 50) &&
+             isValidOptionalString('longitude', 0, 50);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // User profiles: Users can read and write only their own profile
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if isOwner(userId);
       allow create: if isOwner(userId)
-        && request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'companyName', 'mobileNumber', 'createdAt'])
-        && request.resource.data.email == request.auth.token.email;
-      allow update: if isOwner(userId);
+        && request.resource.data.keys().hasAll(['firstName', 'lastName', 'email', 'companyName', 'mobileNumber'])
+        && request.resource.data.email == request.auth.token.email
+        && isValidUser(request.resource.data);
+      allow update: if isOwner(userId)
+        && isValidUser(request.resource.data)
+        && request.resource.data.email == resource.data.email;
       allow delete: if false; // Protect profile deletion from direct client calls
     }
 
-    // Organizations and Farms (for onboarding and Phase 1B)
+    // Organizations
     match /organizations/{orgId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
     }
 
+    // Farms
     match /farms/{farmId} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.ownerId == request.auth.uid;
     }
 
     // Fallback deny all other collections

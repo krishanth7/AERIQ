@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { AuthUser } from '@/types/auth';
+import { saveUserSettingsToFirestore, getUserSettingsFromFirestore } from '@/lib/firebase/user-service';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/ui/form-field';
 import { Alert } from '@/components/ui/alert';
@@ -18,6 +19,9 @@ import {
   Globe,
   Locate,
   Loader2,
+  Headphones,
+  X,
+  ShieldAlert,
 } from 'lucide-react';
 
 interface InteractiveMapPreviewProps {
@@ -239,6 +243,15 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
     }
   };
 
+  // Single-update restriction state
+  const [hasUpdatedOnce, setHasUpdatedOnce] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('aeriq_settings_updated_once') === 'true';
+    }
+    return false;
+  });
+  const [showSupportModal, setShowSupportModal] = useState(false);
+
   const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
     setGeneralData((prev) => ({ ...prev, [field]: value }));
     setIsSaved(false);
@@ -246,11 +259,19 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
 
   const handleSaveGeneral = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (hasUpdatedOnce) {
+      setShowSupportModal(true);
+      return;
+    }
 
+    setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSaved(true);
+      setHasUpdatedOnce(true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('aeriq_settings_updated_once', 'true');
+      }
       if (onUpdateUser) {
         onUpdateUser({
           firstName: generalData.firstName,
@@ -266,11 +287,19 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
 
   const handleSaveConfig = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (hasUpdatedOnce) {
+      setShowSupportModal(true);
+      return;
+    }
 
+    setIsSubmitting(true);
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSaved(true);
+      setHasUpdatedOnce(true);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('aeriq_settings_updated_once', 'true');
+      }
     }, 400);
   };
 
@@ -666,6 +695,53 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
           )}
         </div>
       </div>
+
+      {/* Floating Glassmorphism Support Modal when Update Limit Reached */}
+      {showSupportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md p-6 rounded-2xl bg-surface/95 border border-white/10 dark:border-white/20 shadow-elevated text-center space-y-4 animate-scale-up">
+            <button
+              type="button"
+              onClick={() => setShowSupportModal(false)}
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-brand/10 border border-brand/20 text-brand flex items-center justify-center mx-auto shadow-subtle">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-base font-semibold text-text-primary">
+                Configuration Locked
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto">
+                Settings can only be updated <strong>once</strong>. To modify your profile, species selection, or site location again, please contact <strong>AERIQ Support</strong>.
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+              <a
+                href="mailto:support@aeriq.aero?subject=AERIQ%20Settings%20Update%20Request"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand hover:bg-brand-hover text-neutral-950 font-semibold text-xs transition-all shadow-subtle active:scale-95"
+              >
+                <Headphones className="w-4 h-4" />
+                <span>Contact AERIQ Support</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowSupportModal(false)}
+                className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-border hover:bg-surface-secondary text-text-primary font-medium text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

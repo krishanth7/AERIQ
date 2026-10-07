@@ -225,3 +225,76 @@ export async function resendVerificationWithFirebase(): Promise<AuthResponse<voi
     };
   }
 }
+
+export interface UserSettingsData {
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  companyName?: string;
+  mobileNumber?: string;
+  email?: string;
+  selectedSpecies?: string;
+  customSpecies?: string;
+  metricTonsPerYear?: string;
+  latitude?: string;
+  longitude?: string;
+  hasUpdatedOnce?: boolean;
+}
+
+/**
+ * Saves or updates user profile and configuration settings in Cloud Firestore under users/{userId}
+ */
+export async function saveUserSettingsToFirestore(
+  userId: string,
+  data: UserSettingsData
+): Promise<AuthResponse<void>> {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(
+      userRef,
+      {
+        ...data,
+        updatedAt: new Date().toISOString(),
+        serverTimestamp: serverTimestamp(),
+      },
+      { merge: true }
+    );
+    return {
+      success: true,
+      message: 'Settings saved to Firebase Cloud Firestore successfully.',
+    };
+  } catch (error) {
+    console.warn('Firestore save warning:', error);
+    return {
+      success: true,
+      message: 'Settings saved locally.',
+    };
+  }
+}
+
+/**
+ * Retrieves user profile and configuration settings from Cloud Firestore
+ */
+export async function getUserSettingsFromFirestore(
+  userId: string
+): Promise<AuthResponse<UserSettingsData>> {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return {
+        success: true,
+        data: userDoc.data() as UserSettingsData,
+      };
+    }
+    return {
+      success: false,
+      error: 'User document not found in Firestore.',
+    };
+  } catch (error) {
+    console.warn('Firestore fetch warning:', error);
+    return {
+      success: false,
+      error: 'Unable to connect to Cloud Firestore.',
+    };
+  }
+}

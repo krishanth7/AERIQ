@@ -227,8 +227,8 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
           setIsSaved(false);
           setIsLocating(false);
         },
-        () => {
-          // Fallback location on permission deny or timeout
+        (error) => {
+          console.warn('Geolocation error:', error);
           setLatitude('16.5449');
           setLongitude('81.5212');
           setIsSaved(false);

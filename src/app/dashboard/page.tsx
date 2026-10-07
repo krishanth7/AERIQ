@@ -19,22 +19,43 @@ import {
   Droplets,
   PlusCircle,
   Building,
-  LayoutDashboard,
-  Settings,
-  ClipboardCheck,
   Menu,
   X,
-  Layers,
+  ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+
+function SettingsCustomIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <g clipPath="url(#clip0_4418_8716)">
+        <path
+          d="M18.9401 5.41945L13.7701 2.42945C12.7801 1.85945 11.2301 1.85945 10.2401 2.42945L5.02008 5.43945C2.95008 6.83945 2.83008 7.04945 2.83008 9.27945V14.7095C2.83008 16.9395 2.95008 17.1595 5.06008 18.5795L10.2301 21.5695C10.7301 21.8595 11.3701 21.9995 12.0001 21.9995C12.6301 21.9995 13.2701 21.8595 13.7601 21.5695L18.9801 18.5595C21.0501 17.1595 21.1701 16.9495 21.1701 14.7195V9.27945C21.1701 7.04945 21.0501 6.83945 18.9401 5.41945ZM12.0001 15.2495C10.2101 15.2495 8.75008 13.7895 8.75008 11.9995C8.75008 10.2095 10.2101 8.74945 12.0001 8.74945C13.7901 8.74945 15.2501 10.2095 15.2501 11.9995C15.2501 13.7895 13.7901 15.2495 12.0001 15.2495Z"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_4418_8716">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [selectedFarm, setSelectedFarm] = useState('Nordic Marine RAS - Facility 01');
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('settings');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -59,51 +80,6 @@ export default function DashboardPage() {
     logout();
     router.push('/login');
   };
-
-  const navItems = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard Overview',
-      icon: LayoutDashboard,
-      badge: undefined,
-    },
-    {
-      id: 'water-quality',
-      label: 'Water Quality Telemetry',
-      icon: Droplets,
-      badge: 'Live',
-    },
-    {
-      id: 'biomass',
-      label: 'Fish Biomass & Feeding',
-      icon: Fish,
-      badge: undefined,
-    },
-    {
-      id: 'checklist',
-      label: '5-Interval Checklist',
-      icon: FileCheck,
-      badge: '3/5',
-    },
-    {
-      id: 'ras-biofilter',
-      label: 'RAS Biofilter Systems',
-      icon: Waves,
-      badge: undefined,
-    },
-    {
-      id: 'compliance',
-      label: 'Compliance & Audit',
-      icon: ShieldCheck,
-      badge: 'Active',
-    },
-    {
-      id: 'settings',
-      label: 'Facility Settings',
-      icon: Settings,
-      badge: undefined,
-    },
-  ];
 
   const checklistIntervals = [
     {
@@ -155,16 +131,16 @@ export default function DashboardPage() {
         onAccept={handleAcceptTerms}
       />
 
-      {/* Header Bar */}
+      {/* Top Application Header Bar */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-6">
-            {/* Mobile Hamburger Toggle */}
+            {/* Mobile Navigation Toggle */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-text-secondary hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-brand rounded-md"
-              aria-label="Toggle navigation menu"
+              aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -229,88 +205,62 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Container with Left Navigation Sidebar + Content Workspace */}
-      <div className="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row">
+      {/* Main Container with Collapsible Left Navigation Sidebar + Dashboard Workspace */}
+      <div className="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row min-h-[calc(100vh-4rem)]">
         {/* Left Navigation Sidebar Menu */}
         <aside
-          className={`lg:w-64 border-r border-border bg-surface/50 backdrop-blur-sm p-4 space-y-6 lg:block ${
+          className={`border-r border-border bg-surface/60 backdrop-blur-sm p-3 flex flex-col justify-between transition-all duration-200 lg:block ${
+            isSidebarOpen ? 'lg:w-64' : 'lg:w-16'
+          } ${
             mobileMenuOpen ? 'block fixed inset-x-0 top-16 bottom-0 z-30 bg-surface' : 'hidden'
           }`}
         >
-          {/* Facility Header (Mobile View) */}
-          <div className="md:hidden pb-3 border-b border-border space-y-1">
-            <div className="text-xs font-semibold text-text-primary">
-              {user?.companyName || 'Venigem Advanced Technologies'}
+          {/* Top Section: Toggle Collapse / Expand */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2 py-1.5 border-b border-border">
+              {isSidebarOpen && (
+                <span className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                  Navigation
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="p-1.5 text-text-secondary hover:text-text-primary hover:bg-surface-secondary rounded-md transition-colors ml-auto"
+                title={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
+                aria-label={isSidebarOpen ? 'Collapse menu' : 'Expand menu'}
+              >
+                {isSidebarOpen ? (
+                  <ChevronLeft className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </button>
             </div>
-            <div className="text-[11px] text-text-secondary">{selectedFarm}</div>
           </div>
 
-          {/* Navigation Section */}
-          <div className="space-y-1">
-            <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
-              Operational Modules
-            </div>
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                      isActive
-                        ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary/70'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
-                          isActive
-                            ? 'bg-neutral-950 text-brand'
-                            : 'bg-surface-secondary text-text-tertiary border border-border'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* System Status Summary Widget */}
-          <div className="pt-4 border-t border-border space-y-3">
-            <div className="px-3 text-[11px] font-semibold uppercase tracking-wider text-text-tertiary">
-              System Gateway
-            </div>
-            <div className="p-3 rounded-lg bg-surface-secondary/60 border border-border space-y-2 text-xs">
-              <div className="flex items-center justify-between text-text-secondary">
-                <span>Biofilter Capacity</span>
-                <span className="font-semibold text-status-success">98.4%</span>
-              </div>
-              <div className="w-full bg-border h-1.5 rounded-full overflow-hidden">
-                <div className="bg-status-success h-full w-[98%]" />
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-text-tertiary pt-1">
-                <span>3 Tanks Online</span>
-                <span className="font-mono">42,500 kg</span>
-              </div>
-            </div>
+          {/* Bottom Section: Settings Item with Custom SVG Icon */}
+          <div className="pt-4 border-t border-border">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('settings');
+                setMobileMenuOpen(false);
+              }}
+              title="Settings"
+              className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-brand text-neutral-950 shadow-subtle'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
+              } ${!isSidebarOpen ? 'justify-center px-0' : 'justify-start'}`}
+            >
+              <SettingsCustomIcon className="w-5 h-5 shrink-0" />
+              {isSidebarOpen && <span>Settings</span>}
+            </button>
           </div>
         </aside>
 
-        {/* Main Workspace Content Area */}
+        {/* Dashboard Workspace */}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 space-y-8 min-w-0">
           {/* Compliance Banner */}
           <div className="p-4 sm:p-5 rounded-panel bg-brand-subtle/40 border border-brand/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">

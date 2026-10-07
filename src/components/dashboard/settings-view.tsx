@@ -14,7 +14,153 @@ import {
   Bell,
   Sliders,
   Lock,
+  MapPin,
+  Globe,
+  Locate,
+  Loader2,
 } from 'lucide-react';
+
+interface InteractiveMapPreviewProps {
+  latitude: string;
+  longitude: string;
+  onChangeLocation: (lat: string, lng: string) => void;
+}
+
+function InteractiveMapPreview({ latitude, longitude, onChangeLocation }: InteractiveMapPreviewProps) {
+  const mapContainerRef = React.useRef<HTMLDivElement>(null);
+  const mapInstanceRef = React.useRef<any>(null);
+  const markerInstanceRef = React.useRef<any>(null);
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+
+  const numLat = parseFloat(latitude) || 16.5449;
+  const numLng = parseFloat(longitude) || 81.5212;
+
+  // Dynamically load Leaflet library if not present
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    if ((window as any).L) {
+      setLeafletLoaded(true);
+      return;
+    }
+
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => setLeafletLoaded(true);
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  // Initialize and sync Leaflet map
+  React.useEffect(() => {
+    if (!leafletLoaded || !mapContainerRef.current) return;
+    const L = (window as any).L;
+    if (!L) return;
+
+    if (!mapInstanceRef.current) {
+      const map = L.map(mapContainerRef.current, {
+        zoomControl: true,
+        attributionControl: false,
+      }).setView([numLat, numLng], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Custom marker icon with pin design
+      const customIcon = L.divIcon({
+        className: 'custom-interactive-marker',
+        html: `<div style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;background:#10b981;border:3px solid #ffffff;border-radius:50%;box-shadow:0 8px 24px rgba(0,0,0,0.45);cursor:grab;">
+                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#09090b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+               </div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+      });
+
+      const marker = L.marker([numLat, numLng], {
+        draggable: true,
+        icon: customIcon,
+      }).addTo(map);
+
+      // Drag event handler
+      marker.on('drag', (e: any) => {
+        const { lat, lng } = e.target.getLatLng();
+        onChangeLocation(lat.toFixed(4), lng.toFixed(4));
+      });
+
+      marker.on('dragend', (e: any) => {
+        const { lat, lng } = e.target.getLatLng();
+        onChangeLocation(lat.toFixed(4), lng.toFixed(4));
+      });
+
+      // Map click handler
+      map.on('click', (e: any) => {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        onChangeLocation(lat.toFixed(4), lng.toFixed(4));
+      });
+
+      mapInstanceRef.current = map;
+      markerInstanceRef.current = marker;
+    } else {
+      const map = mapInstanceRef.current;
+      const marker = markerInstanceRef.current;
+      const pos = marker.getLatLng();
+
+      if (Math.abs(pos.lat - numLat) > 0.0001 || Math.abs(pos.lng - numLng) > 0.0001) {
+        marker.setLatLng([numLat, numLng]);
+        map.panTo([numLat, numLng], { animate: true });
+      }
+    }
+  }, [leafletLoaded, numLat, numLng, onChangeLocation]);
+
+  // Clean up
+  React.useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  return (
+    <div className="relative w-full h-64 rounded-xl overflow-hidden border border-border bg-surface-secondary shadow-inner">
+      {!leafletLoaded ? (
+        <iframe
+          title="Site Location Map Preview"
+          className="w-full h-full border-0 filter contrast-[1.05]"
+          loading="lazy"
+          src={`https://www.openstreetmap.org/export/embed.html?bbox=${numLng - 0.02}%2C${numLat - 0.02}%2C${numLng + 0.02}%2C${numLat + 0.02}&layer=mapnik&marker=${numLat}%2C${numLng}`}
+        />
+      ) : (
+        <div ref={mapContainerRef} className="w-full h-full z-0" />
+      )}
+
+      {/* Floating Glassmorphism Coordinate Badge */}
+      <div className="absolute bottom-3 left-3 pointer-events-none z-10 px-3 py-1.5 rounded-lg bg-neutral-950/85 backdrop-blur-md border border-white/10 text-[11px] text-white flex items-center gap-2 shadow-elevated">
+        <MapPin className="w-3.5 h-3.5 text-brand shrink-0 animate-bounce" />
+        <span className="font-mono text-[10.5px] font-semibold tracking-wide">
+          {numLat.toFixed(4)}° N, {numLng.toFixed(4)}° E
+        </span>
+      </div>
+
+      <div className="absolute top-3 right-3 pointer-events-none z-10 px-2.5 py-1 rounded-md bg-neutral-950/70 backdrop-blur-md border border-white/10 text-[10px] text-neutral-300 font-medium">
+        Click map or drag pin to adjust
+      </div>
+    </div>
+  );
+}
 
 interface SettingsViewProps {
   user: AuthUser | null;
@@ -65,6 +211,33 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   const [selectedSpecies, setSelectedSpecies] = useState<'Murrel' | 'Vannamei Shrimp' | 'Mud Crab' | 'Other'>('Murrel');
   const [customSpecies, setCustomSpecies] = useState('');
   const [metricTonsPerYear, setMetricTonsPerYear] = useState('500');
+
+  // Location state (Latitude & Longitude)
+  const [latitude, setLatitude] = useState('16.5449');
+  const [longitude, setLongitude] = useState('81.5212');
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleDetectLocation = () => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude.toFixed(4));
+          setLongitude(position.coords.longitude.toFixed(4));
+          setIsSaved(false);
+          setIsLocating(false);
+        },
+        () => {
+          // Fallback location on permission deny or timeout
+          setLatitude('16.5449');
+          setLongitude('81.5212');
+          setIsSaved(false);
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+  };
 
   const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
     setGeneralData((prev) => ({ ...prev, [field]: value }));
@@ -343,6 +516,84 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                     />
                   )}
                 </FormField>
+
+                {/* Site Location & Interactive Map Preview */}
+                <div className="pt-3 border-t border-border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="font-semibold text-text-primary flex items-center gap-1.5">
+                      <MapPin className="w-4 h-4 text-brand" />
+                      <span>Site Location Confirmation</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleDetectLocation}
+                      disabled={isLocating}
+                      className="text-[11px] font-medium text-brand hover:text-brand-hover flex items-center gap-1 bg-brand-subtle/40 px-2.5 py-1 rounded-md border border-brand/20 transition-colors disabled:opacity-50"
+                    >
+                      {isLocating ? (
+                        <Loader2 className="w-3 h-3 animate-spin text-brand" />
+                      ) : (
+                        <Locate className="w-3 h-3" />
+                      )}
+                      <span>{isLocating ? 'Detecting...' : 'Detect Location'}</span>
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <FormField id="latitude-input" label="Latitude">
+                      {({ id }) => (
+                        <Input
+                          id={id}
+                          type="text"
+                          value={latitude}
+                          onChange={(e) => {
+                            setLatitude(e.target.value);
+                            setIsSaved(false);
+                          }}
+                          placeholder="e.g. 16.5449"
+                        />
+                      )}
+                    </FormField>
+
+                    <FormField id="longitude-input" label="Longitude">
+                      {({ id }) => (
+                        <Input
+                          id={id}
+                          type="text"
+                          value={longitude}
+                          onChange={(e) => {
+                            setLongitude(e.target.value);
+                            setIsSaved(false);
+                          }}
+                          placeholder="e.g. 81.5212"
+                        />
+                      )}
+                    </FormField>
+                  </div>
+
+                  {/* Interactive Map Component */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-medium text-text-secondary flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-brand" />
+                        <span>Map Preview</span>
+                      </span>
+                      <span className="text-[10px] text-text-muted font-mono">
+                        {latitude || '0.0000'}°, {longitude || '0.0000'}°
+                      </span>
+                    </div>
+
+                    <InteractiveMapPreview
+                      latitude={latitude}
+                      longitude={longitude}
+                      onChangeLocation={(newLat, newLng) => {
+                        setLatitude(newLat);
+                        setLongitude(newLng);
+                        setIsSaved(false);
+                      }}
+                    />
+                  </div>
+                </div>
 
                 {/* Save Icon Only Button with Liquid Glass Tooltip */}
                 <div className="pt-2 flex items-center justify-end">

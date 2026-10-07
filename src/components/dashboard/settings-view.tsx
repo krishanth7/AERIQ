@@ -3,21 +3,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { AuthUser } from '@/types/auth';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormField } from '@/components/ui/form-field';
 import { Alert } from '@/components/ui/alert';
 import {
   User,
-  Building,
-  Phone,
-  Mail,
   ShieldCheck,
   Key,
   CheckCircle2,
   Bell,
-  Cpu,
-  Save,
+  Sliders,
   Lock,
 } from 'lucide-react';
 
@@ -26,13 +21,39 @@ interface SettingsViewProps {
   onUpdateUser?: (updated: Partial<AuthUser>) => void;
 }
 
+function SaveCustomIcon({ className = 'w-6 h-6' }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <g clipPath="url(#clip0_4418_8726)">
+        <path
+          d="M12.89 5.88086H5.11C3.4 5.88086 2 7.28086 2 8.99086V20.3509C2 21.8009 3.04 22.4209 4.31 21.7109L8.24 19.5209C8.66 19.2909 9.34 19.2909 9.75 19.5209L13.68 21.7109C14.96 22.4109 16 21.8009 16 20.3509V8.99086C16 7.28086 14.6 5.88086 12.89 5.88086Z"
+        />
+        <path
+          d="M22.0001 5.11V16.47C22.0001 17.92 20.9601 18.53 19.6901 17.83L17.7601 16.75C17.6001 16.66 17.5001 16.31 17.5001 16.31V8.99C17.5001 6.45 15.4301 4.38 12.8901 4.38H8.82008C8.45008 4.38 8.19008 3.99 8.36008 3.67C8.88008 2.68 9.92008 2 11.1101 2H18.8901C20.6001 2 22.0001 3.4 22.0001 5.11Z"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_4418_8726">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
 export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'general' | 'security' | 'farm' | 'notifications'>('general');
+  const [activeSubTab, setActiveSubTab] = useState<'general' | 'configuration' | 'security' | 'notifications'>('general');
   const [isSaved, setIsSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // General profile form state initialized with registered user data or defaults
-  const [formData, setFormData] = useState({
+  const [generalData, setGeneralData] = useState({
     firstName: user?.firstName || (user?.fullName ? user.fullName.split(' ')[0] : 'Aqua'),
     lastName: user?.lastName || (user?.fullName && user.fullName.split(' ').length > 1 ? user.fullName.split(' ').slice(1).join(' ') : 'Operator'),
     companyName: user?.companyName || 'Venigem Advanced Technologies',
@@ -40,12 +61,18 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
     email: user?.email || 'operator@aqua-farms.no',
   });
 
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  // Fish Species & Configuration state
+  const [selectedSpecies, setSelectedSpecies] = useState<'Murrel' | 'Vannamei Shrimp' | 'Mud Crab' | 'Other'>('Murrel');
+  const [customSpecies, setCustomSpecies] = useState('');
+  const [targetBiomass, setTargetBiomass] = useState('45,000');
+  const [waterTemperature, setWaterTemperature] = useState('14.5');
+
+  const handleGeneralChange = (field: keyof typeof generalData, value: string) => {
+    setGeneralData((prev) => ({ ...prev, [field]: value }));
     setIsSaved(false);
   };
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveGeneral = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -54,22 +81,32 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
       setIsSaved(true);
       if (onUpdateUser) {
         onUpdateUser({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          fullName: `${formData.firstName} ${formData.lastName}`.trim(),
-          companyName: formData.companyName,
-          mobileNumber: formData.mobileNumber,
-          email: formData.email,
+          firstName: generalData.firstName,
+          lastName: generalData.lastName,
+          fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
+          companyName: generalData.companyName,
+          mobileNumber: generalData.mobileNumber,
+          email: generalData.email,
         });
       }
     }, 400);
   };
 
+  const handleSaveConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSaved(true);
+    }, 400);
+  };
+
   const settingsMenu = [
     { id: 'general', label: 'General', icon: User, desc: 'Personal info, mobile number, & company details' },
+    { id: 'configuration', label: 'Configuration', icon: Sliders, desc: 'Fish species selection, custom species, RAS specs' },
     { id: 'security', label: 'Security & Auth', icon: Key, desc: 'Password, two-factor authentication, sessions' },
-    { id: 'farm', label: 'RAS & Farm Setup', icon: Cpu, desc: 'Facility specs, tank volume, biofilter telemetry' },
-    { id: 'notifications', label: 'Alerts & Alerts', icon: Bell, desc: 'Threshold alerts, SMS & email dispatches' },
+    { id: 'notifications', label: 'Alerts & Notifications', icon: Bell, desc: 'Threshold alerts, SMS & email dispatches' },
   ];
 
   return (
@@ -81,7 +118,7 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
             Facility & Account Settings
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Manage your user account registration details, enterprise company profile, and RAS parameters.
+            Manage your user account registration details, species configuration, and RAS operational parameters.
           </p>
         </div>
       </div>
@@ -101,7 +138,10 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                 <button
                   key={item.id}
                   type="button"
-                  onClick={() => setActiveSubTab(item.id as typeof activeSubTab)}
+                  onClick={() => {
+                    setActiveSubTab(item.id as typeof activeSubTab);
+                    setIsSaved(false);
+                  }}
                   className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left text-xs font-medium transition-all ${
                     isActive
                       ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
@@ -118,7 +158,7 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
           </nav>
         </div>
 
-        {/* Main Settings Panel */}
+        {/* Main Settings Content Panel */}
         <div className="md:col-span-3 space-y-6">
           {/* General Tab View */}
           {activeSubTab === 'general' && (
@@ -139,7 +179,7 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                 </span>
               </div>
 
-              {/* Success Notification Alert */}
+              {/* Success Alert */}
               {isSaved && (
                 <Alert
                   variant="success"
@@ -148,7 +188,7 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                 />
               )}
 
-              <form onSubmit={handleSaveProfile} className="space-y-5">
+              <form onSubmit={handleSaveGeneral} className="space-y-5">
                 {/* First Name & Last Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField id="setting-firstName" label="First Name" required>
@@ -156,8 +196,8 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                       <Input
                         id={id}
                         type="text"
-                        value={formData.firstName}
-                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        value={generalData.firstName}
+                        onChange={(e) => handleGeneralChange('firstName', e.target.value)}
                         placeholder="First name"
                       />
                     )}
@@ -168,8 +208,8 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                       <Input
                         id={id}
                         type="text"
-                        value={formData.lastName}
-                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        value={generalData.lastName}
+                        onChange={(e) => handleGeneralChange('lastName', e.target.value)}
                         placeholder="Last name"
                       />
                     )}
@@ -183,8 +223,8 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                       <Input
                         id={id}
                         type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        value={generalData.email}
+                        onChange={(e) => handleGeneralChange('email', e.target.value)}
                         placeholder="name@company.com"
                       />
                     )}
@@ -195,8 +235,8 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                       <Input
                         id={id}
                         type="tel"
-                        value={formData.mobileNumber}
-                        onChange={(e) => handleInputChange('mobileNumber', e.target.value)}
+                        value={generalData.mobileNumber}
+                        onChange={(e) => handleGeneralChange('mobileNumber', e.target.value)}
                         placeholder="+1 (555) 000-0000"
                       />
                     )}
@@ -209,14 +249,14 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                     <Input
                       id={id}
                       type="text"
-                      value={formData.companyName}
-                      onChange={(e) => handleInputChange('companyName', e.target.value)}
+                      value={generalData.companyName}
+                      onChange={(e) => handleGeneralChange('companyName', e.target.value)}
                       placeholder="Company or farm name"
                     />
                   )}
                 </FormField>
 
-                {/* System Record Read-Only Metadata */}
+                {/* Read-Only System Metadata */}
                 <div className="p-4 rounded-lg bg-surface-secondary/50 border border-border grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                   <div>
                     <span className="text-text-tertiary block">Account ID</span>
@@ -234,18 +274,157 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                   </div>
                 </div>
 
-                {/* Submit / Save Button */}
-                <div className="pt-2 flex items-center justify-end gap-3">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    isLoading={isSubmitting}
-                    leftIcon={<Save className="w-4 h-4" />}
-                    className="rounded-full px-6"
-                  >
-                    Save Registration Changes
-                  </Button>
+                {/* Save Icon Only Button with Liquid Glass Tooltip */}
+                <div className="pt-4 flex items-center justify-end">
+                  <div className="relative group inline-block">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      aria-label="Save"
+                      className="w-12 h-12 rounded-2xl bg-brand hover:bg-brand-hover active:scale-95 text-neutral-950 flex items-center justify-center shadow-subtle transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+                    >
+                      <SaveCustomIcon className="w-6 h-6" />
+                    </button>
+                    {/* Liquid Glass Style Tooltip */}
+                    <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 absolute -top-11 left-1/2 -translate-x-1/2 pointer-events-none z-20 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-text-primary bg-white/30 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/20 shadow-elevated whitespace-nowrap">
+                      Save
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Configuration Tab View */}
+          {activeSubTab === 'configuration' && (
+            <div className="p-6 rounded-panel bg-surface border border-border shadow-card space-y-6">
+              <div className="pb-4 border-b border-border">
+                <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-brand" />
+                  <span>Species & Operational Configuration</span>
+                </h2>
+                <p className="text-xs text-text-secondary mt-0.5">
+                  Select the primary aquaculture species cultivated in your RAS facilities and configure biomass limits.
+                </p>
+              </div>
+
+              {/* Success Alert */}
+              {isSaved && (
+                <Alert
+                  variant="success"
+                  description="Configuration parameters saved successfully."
+                  onDismiss={() => setIsSaved(false)}
+                />
+              )}
+
+              <form onSubmit={handleSaveConfig} className="space-y-6">
+                {/* Species Selection */}
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-text-primary block">
+                    Select Fish / Aquaculture Species
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { id: 'Murrel', label: 'Murrel (Snakehead Fish)', desc: 'Channa striata / Marulius' },
+                      { id: 'Vannamei Shrimp', label: 'Vannamei Shrimp', desc: 'Litopenaeus vannamei' },
+                      { id: 'Mud Crab', label: 'Mud Crab', desc: 'Scylla serrata' },
+                      { id: 'Other', label: 'Other Species', desc: 'Specify custom species below' },
+                    ].map((species) => {
+                      const isSelected = selectedSpecies === species.id;
+                      return (
+                        <button
+                          key={species.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedSpecies(species.id as typeof selectedSpecies);
+                            setIsSaved(false);
+                          }}
+                          className={`p-4 rounded-xl border text-left transition-all flex items-start justify-between gap-3 ${
+                            isSelected
+                              ? 'bg-brand-subtle/50 border-brand ring-1 ring-brand/40 shadow-subtle'
+                              : 'bg-surface hover:bg-surface-secondary border-border'
+                          }`}
+                        >
+                          <div className="space-y-1">
+                            <div className="text-sm font-bold text-text-primary">{species.label}</div>
+                            <div className="text-xs text-text-secondary">{species.desc}</div>
+                          </div>
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                              isSelected ? 'border-brand bg-brand text-neutral-950' : 'border-border'
+                            }`}
+                          >
+                            {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-neutral-950" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Conditional Custom Species Input when "Other" is Selected */}
+                {selectedSpecies === 'Other' && (
+                  <div className="p-4 rounded-xl bg-surface-secondary/60 border border-brand/30 space-y-3 animate-fade-in">
+                    <FormField id="custom-species-input" label="Specify Custom Species Name" required>
+                      {({ id }) => (
+                        <Input
+                          id={id}
+                          type="text"
+                          value={customSpecies}
+                          onChange={(e) => {
+                            setCustomSpecies(e.target.value);
+                            setIsSaved(false);
+                          }}
+                          placeholder="e.g. Atlantic Salmon, Tilapia, Barramundi..."
+                        />
+                      )}
+                    </FormField>
+                  </div>
+                )}
+
+                {/* Additional RAS Parameters */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField id="target-biomass" label="Target Stocking Biomass (kg)">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="text"
+                        value={targetBiomass}
+                        onChange={(e) => setTargetBiomass(e.target.value)}
+                        placeholder="45,000"
+                      />
+                    )}
+                  </FormField>
+
+                  <FormField id="target-temp" label="Target Water Temperature (°C)">
+                    {({ id }) => (
+                      <Input
+                        id={id}
+                        type="text"
+                        value={waterTemperature}
+                        onChange={(e) => setWaterTemperature(e.target.value)}
+                        placeholder="14.5"
+                      />
+                    )}
+                  </FormField>
+                </div>
+
+                {/* Save Icon Only Button with Liquid Glass Tooltip */}
+                <div className="pt-4 flex items-center justify-end">
+                  <div className="relative group inline-block">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      aria-label="Save"
+                      className="w-12 h-12 rounded-2xl bg-brand hover:bg-brand-hover active:scale-95 text-neutral-950 flex items-center justify-center shadow-subtle transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand disabled:opacity-50"
+                    >
+                      <SaveCustomIcon className="w-6 h-6" />
+                    </button>
+                    {/* Liquid Glass Style Tooltip */}
+                    <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 absolute -top-11 left-1/2 -translate-x-1/2 pointer-events-none z-20 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-text-primary bg-white/30 dark:bg-black/40 backdrop-blur-xl border border-white/40 dark:border-white/20 shadow-elevated whitespace-nowrap">
+                      Save
+                    </div>
+                  </div>
                 </div>
               </form>
             </div>
@@ -270,9 +449,9 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                     <div className="font-semibold text-text-primary">Password Protection</div>
                     <div className="text-text-secondary mt-0.5">Last updated 14 days ago</div>
                   </div>
-                  <Button variant="secondary" size="sm" className="rounded-full text-xs">
+                  <button type="button" className="px-4 py-2 rounded-full border border-border hover:bg-surface-secondary font-semibold">
                     Change Password
-                  </Button>
+                  </button>
                 </div>
 
                 <div className="p-4 rounded-lg bg-surface-secondary/40 border border-border flex items-center justify-between gap-4">
@@ -283,35 +462,9 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                       <span>Enabled via SMS & Authenticator App</span>
                     </div>
                   </div>
-                  <Button variant="secondary" size="sm" className="rounded-full text-xs">
+                  <button type="button" className="px-4 py-2 rounded-full border border-border hover:bg-surface-secondary font-semibold">
                     Configure 2FA
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Farm Setup Tab View */}
-          {activeSubTab === 'farm' && (
-            <div className="p-6 rounded-panel bg-surface border border-border shadow-card space-y-6">
-              <div className="pb-4 border-b border-border">
-                <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
-                  <Cpu className="w-5 h-5 text-brand" />
-                  <span>RAS & Facility Setup</span>
-                </h2>
-                <p className="text-xs text-text-secondary mt-0.5">
-                  Facility volume parameters, biofilter specifications, and telemetry hardware gateways.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div className="p-4 rounded-lg bg-surface-secondary/40 border border-border space-y-1">
-                  <span className="text-text-tertiary">Primary Facility</span>
-                  <div className="font-bold text-text-primary">Nordic Marine RAS - Facility 01</div>
-                </div>
-                <div className="p-4 rounded-lg bg-surface-secondary/40 border border-border space-y-1">
-                  <span className="text-text-tertiary">Biofilter Volume</span>
-                  <div className="font-bold text-text-primary">1,250 m³ MBBR Carrier Bed</div>
+                  </button>
                 </div>
               </div>
             </div>

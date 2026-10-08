@@ -1593,6 +1593,3 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     </div>
   );
 }
-    </div>
-  );
-}

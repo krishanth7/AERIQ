@@ -1175,11 +1175,28 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
           {/* Documents View - Ultra-Minimal Master Documents List */}
           {activeSubTab === 'documents' && (
             <div className="p-5 rounded-panel bg-surface border border-border shadow-card space-y-4">
-              <div className="pb-3 border-b border-border">
+              <div className="pb-3 border-b border-border flex items-center justify-between">
                 <h2 className="font-semibold text-text-primary flex items-center gap-2">
                   <FileText className="w-4 h-4 text-brand" />
                   <span>Documents</span>
                 </h2>
+
+                {/* 30-Day Subscription Status Badge */}
+                {isSubscriptionActive ? (
+                  <span className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>30-Day Pass Active ({daysRemaining} Days Left)</span>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentModal(true)}
+                    className="px-2.5 py-1 rounded-full text-[10.5px] font-semibold bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 flex items-center gap-1.5 transition-colors"
+                  >
+                    <Lock className="w-3 h-3 text-amber-400" />
+                    <span>₹199 / Month Pass Required</span>
+                  </button>
+                )}
               </div>
 
               {/* Minimal Documents Table */}
@@ -1208,8 +1225,8 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
                           <div className="flex items-center justify-end gap-2">
                             <button
                               type="button"
-                              onClick={() => setSelectedDocModal(doc)}
-                              title="View"
+                              onClick={() => handleDocViewClick(doc)}
+                              title="View Document"
                               className="px-2.5 py-1.5 rounded-lg bg-surface-secondary hover:bg-brand/20 border border-border text-text-primary hover:text-brand transition-all flex items-center gap-1.5 text-[11px] font-medium"
                             >
                               <ViewCustomSvgIcon className="w-4 h-4 text-brand shrink-0" />
@@ -1218,8 +1235,8 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
 
                             <button
                               type="button"
-                              onClick={() => handleDownloadDoc(doc)}
-                              title="Download"
+                              onClick={() => handleDocDownloadClick(doc)}
+                              title="Download Document"
                               className="px-2.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-neutral-950 transition-all flex items-center gap-1.5 text-[11px] font-semibold shadow-subtle active:scale-95 shrink-0"
                             >
                               <DownloadCustomSvgIcon className="w-4 h-4 text-neutral-950 shrink-0" />
@@ -1463,6 +1480,119 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
           </div>
         </div>
       )}
+
+      {/* 30-Day Document Access Subscription Payment Modal (₹199 / Month) */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md p-6 rounded-2xl bg-surface border border-white/10 dark:border-white/20 shadow-elevated space-y-5 animate-scale-up">
+            <button
+              type="button"
+              onClick={() => {
+                setShowPaymentModal(false);
+                setPendingAction(null);
+              }}
+              className="absolute top-4 right-4 text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header Badge & Icon */}
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-brand/10 border border-brand/20 text-brand flex items-center justify-center mx-auto shadow-subtle">
+                <CreditCard className="w-6 h-6" />
+              </div>
+
+              <h3 className="text-lg font-bold text-text-primary">
+                Document Access Subscription
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed max-w-xs mx-auto">
+                Subscription required to view or download master project documents.
+              </p>
+            </div>
+
+            {/* Price Card */}
+            <div className="p-4 rounded-xl bg-surface-secondary/70 border border-brand/30 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1">
+                <span className="text-2xl font-extrabold text-brand font-mono">₹199</span>
+                <span className="text-xs text-text-secondary font-medium">/ month</span>
+              </div>
+              <p className="text-[11px] text-text-muted">
+                30 Days Unlimited Access to All 22 Governance Documents
+              </p>
+            </div>
+
+            {/* Features List */}
+            <div className="space-y-2 text-xs text-text-secondary">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
+                <span>Unlimited View & Download for 30 Days</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
+                <span>All 22 RAS Governance & Operational Standards</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
+                <span>Official AERIQ Compliance & Legal Watermarks</span>
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="pt-1">
+              <span className="text-[10.5px] font-semibold text-text-muted uppercase tracking-wider block mb-2">
+                Select Payment Method
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-2 rounded-lg bg-surface border border-brand text-center text-[11px] font-semibold text-brand shadow-subtle">
+                  UPI / GPay
+                </div>
+                <div className="p-2 rounded-lg bg-surface border border-border text-center text-[11px] font-medium text-text-secondary">
+                  Cards
+                </div>
+                <div className="p-2 rounded-lg bg-surface border border-border text-center text-[11px] font-medium text-text-secondary">
+                  Net Banking
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Submit Button */}
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleProcessPayment}
+                disabled={isProcessingPayment}
+                className="w-full py-3 rounded-xl bg-brand hover:bg-brand-hover text-neutral-950 font-bold text-xs transition-all shadow-subtle active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isProcessingPayment ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-neutral-950" />
+                    <span>Processing Payment (₹199)...</span>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    <span>Pay ₹199 & Unlock 30-Day Access</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPaymentModal(false);
+                  setPendingAction(null);
+                }}
+                className="w-full py-2 rounded-xl border border-border hover:bg-surface-secondary text-text-primary font-medium text-xs transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
     </div>
   );
 }

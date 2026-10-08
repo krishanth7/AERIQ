@@ -241,8 +241,8 @@ export default function DashboardPage() {
 
             <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-secondary border border-border text-[11px]">
               <Building className="w-3 h-3 text-text-tertiary" />
-              <span className="font-semibold text-text-primary">
-                {user?.companyName || 'Venigem'}
+              <span className="font-semibold text-text-primary" suppressHydrationWarning>
+                {isMounted && user?.companyName ? user.companyName : 'Venigem'}
               </span>
               <span className="text-border">|</span>
               <span className="text-text-secondary">{selectedFarm}</span>
@@ -261,8 +261,10 @@ export default function DashboardPage() {
 
             <div className="flex items-center gap-2.5">
               <div className="text-right hidden sm:block">
-                <div className="font-semibold text-text-primary">
-                  {user?.fullName || (user?.firstName ? `${user.firstName} ${user.lastName || ''}` : 'Operator')}
+                <div className="font-semibold text-text-primary" suppressHydrationWarning>
+                  {isMounted && (user?.fullName || user?.firstName)
+                    ? user.fullName || `${user.firstName} ${user.lastName || ''}`
+                    : 'Operator'}
                 </div>
               </div>
               <Button

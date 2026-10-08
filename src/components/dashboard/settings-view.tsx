@@ -663,10 +663,10 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     }
   };
 
-  // Single-update restriction state
-  const [hasUpdatedOnce, setHasUpdatedOnce] = useState<boolean>(() => {
+  // Configuration 1-time update restriction state
+  const [hasConfigUpdatedOnce, setHasConfigUpdatedOnce] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('aeriq_settings_updated_once') === 'true';
+      return localStorage.getItem('aeriq_config_updated_once') === 'true';
     }
     return false;
   });
@@ -703,8 +703,8 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
         if (d.longitude) {
           setLongitude(d.longitude);
         }
-        if (d.hasUpdatedOnce !== undefined) {
-          setHasUpdatedOnce(d.hasUpdatedOnce);
+        if (d.hasConfigUpdatedOnce !== undefined) {
+          setHasConfigUpdatedOnce(d.hasConfigUpdatedOnce);
         }
       }
     });
@@ -715,13 +715,9 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     setIsSaved(false);
   };
 
+  // General Settings - Can be changed unlimited times
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (hasUpdatedOnce) {
-      setShowSupportModal(true);
-      return;
-    }
-
     setIsSubmitting(true);
     const userId = user?.id || 'usr_default';
     const payload = {
@@ -731,22 +727,12 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
       companyName: generalData.companyName,
       mobileNumber: generalData.mobileNumber,
       email: generalData.email,
-      selectedSpecies,
-      customSpecies,
-      metricTonsPerYear,
-      latitude,
-      longitude,
-      hasUpdatedOnce: true,
     };
 
     await saveUserSettingsToFirestore(userId, payload);
 
     setIsSubmitting(false);
     setIsSaved(true);
-    setHasUpdatedOnce(true);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('aeriq_settings_updated_once', 'true');
-    }
     if (onUpdateUser) {
       onUpdateUser({
         firstName: generalData.firstName,
@@ -759,9 +745,10 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     }
   };
 
+  // Configuration Settings - Restricted to 1-time update only
   const handleSaveConfig = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (hasUpdatedOnce) {
+    if (hasConfigUpdatedOnce) {
       setShowSupportModal(true);
       return;
     }
@@ -769,27 +756,21 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     setIsSubmitting(true);
     const userId = user?.id || 'usr_default';
     const payload = {
-      firstName: generalData.firstName,
-      lastName: generalData.lastName,
-      fullName: `${generalData.firstName} ${generalData.lastName}`.trim(),
-      companyName: generalData.companyName,
-      mobileNumber: generalData.mobileNumber,
-      email: generalData.email,
       selectedSpecies,
       customSpecies,
       metricTonsPerYear,
       latitude,
       longitude,
-      hasUpdatedOnce: true,
+      hasConfigUpdatedOnce: true,
     };
 
     await saveUserSettingsToFirestore(userId, payload);
 
     setIsSubmitting(false);
     setIsSaved(true);
-    setHasUpdatedOnce(true);
+    setHasConfigUpdatedOnce(true);
     if (typeof window !== 'undefined') {
-      localStorage.setItem('aeriq_settings_updated_once', 'true');
+      localStorage.setItem('aeriq_config_updated_once', 'true');
     }
   };
 
@@ -1271,7 +1252,7 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
                 Configuration Locked
               </h3>
               <p className="text-xs text-text-secondary leading-relaxed max-w-sm mx-auto">
-                Settings can only be updated <strong>once</strong>. To modify your profile, species selection, or site location again, please contact <strong>AERIQ Support</strong>.
+                Configuration settings (Species Selection, Capacity, Site Location) can only be updated <strong>once</strong>. To modify your site configuration again, please contact <strong>AERIQ Support</strong>.
               </p>
             </div>
 

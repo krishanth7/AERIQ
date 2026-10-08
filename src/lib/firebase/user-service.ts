@@ -239,6 +239,7 @@ export interface UserSettingsData {
   latitude?: string;
   longitude?: string;
   hasUpdatedOnce?: boolean;
+  hasConfigUpdatedOnce?: boolean;
 }
 
 /**

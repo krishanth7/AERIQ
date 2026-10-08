@@ -25,6 +25,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
+  Search,
+  Clock,
+  Check,
+  ClipboardList,
 } from 'lucide-react';
 
 function SettingsCustomIcon({ className = 'w-5 h-5' }: { className?: string }) {
@@ -50,6 +54,17 @@ function SettingsCustomIcon({ className = 'w-5 h-5' }: { className?: string }) {
   );
 }
 
+export interface LogItem {
+  id: string;
+  interval: string;
+  title: string;
+  status: 'completed' | 'in-progress' | 'scheduled';
+  time: string;
+  operator: string;
+  values: string;
+  notes?: string;
+}
+
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
@@ -57,7 +72,75 @@ export default function DashboardPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'logs' | 'settings'>('dashboard');
+
+  // Log Entry Modal & Dynamic List State
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [logSearchQuery, setLogSearchQuery] = useState('');
+  const [successToast, setSuccessToast] = useState('');
+
+  const [logs, setLogs] = useState<LogItem[]>([
+    {
+      id: 'log-1',
+      interval: 'Interval 1 (06:00)',
+      title: 'Morning Routine & Dissolved Oxygen',
+      status: 'completed',
+      time: '06:04 AM',
+      operator: user?.fullName || 'Senior Technician',
+      values: 'DO: 8.7 mg/L · Temp: 14.0°C · TAN: 0.011 mg/L · pH: 7.21',
+      notes: 'Morning aeration parameters stable.',
+    },
+    {
+      id: 'log-2',
+      interval: 'Interval 2 (09:30)',
+      title: 'Post-Feed 1 Water Quality Audit',
+      status: 'completed',
+      time: '09:32 AM',
+      operator: user?.fullName || 'Senior Technician',
+      values: 'DO: 8.5 mg/L · Temp: 14.1°C · TAN: 0.012 mg/L · pH: 7.22',
+      notes: 'Feed response active. Biofilter flow optimal.',
+    },
+    {
+      id: 'log-3',
+      interval: 'Interval 3 (13:00)',
+      title: 'Midday Biofilter & MBBR Inspection',
+      status: 'completed',
+      time: '13:02 PM',
+      operator: 'Automated Gateway',
+      values: 'DO: 8.6 mg/L · Temp: 14.1°C · TAN: 0.012 mg/L · pH: 7.20',
+      notes: 'Automated sensor telemetry validated.',
+    },
+    {
+      id: 'log-4',
+      interval: 'Interval 4 (17:00)',
+      title: 'Afternoon Feed & Mortality Assessment',
+      status: 'in-progress',
+      time: 'Due in 35 mins',
+      operator: 'Pending Verification',
+      values: 'DO: 8.4 mg/L · Temp: 14.2°C · TAN: 0.013 mg/L · pH: 7.19',
+      notes: 'Scheduled verification checklist.',
+    },
+    {
+      id: 'log-5',
+      interval: 'Interval 5 (21:00)',
+      title: 'Night Cycle Oxygenation & Backup Check',
+      status: 'scheduled',
+      time: 'Scheduled (21:00)',
+      operator: 'Night Supervisor',
+      values: 'DO: Standby · Temp: 14.0°C · Backup Telemetry OK',
+      notes: 'Standby generators and backup telemetry.',
+    },
+  ]);
+
+  // Form Fields State
+  const [formInterval, setFormInterval] = useState('Interval 4 (17:00)');
+  const [formTitle, setFormTitle] = useState('Afternoon Feed & Mortality Assessment');
+  const [formDo, setFormDo] = useState('8.4');
+  const [formTemp, setFormTemp] = useState('14.2');
+  const [formTan, setFormTan] = useState('0.013');
+  const [formPh, setFormPh] = useState('7.20');
+  const [formOperator, setFormOperator] = useState(user?.fullName || 'Senior Technician');
+  const [formNotes, setFormNotes] = useState('All parameters verified within standard operating thresholds.');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -83,48 +166,37 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  const checklistIntervals = [
-    {
-      interval: 'Interval 1 (06:00)',
-      title: 'Morning Routine & Dissolved Oxygen',
+  const handleSaveLogEntry = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newLog: LogItem = {
+      id: `log-${Date.now()}`,
+      interval: formInterval,
+      title: formTitle || 'Routine Water Quality & Protocol Audit',
       status: 'completed',
-      time: '06:04 AM',
-      operator: user?.fullName || 'Senior Technician',
-      values: 'DO: 8.7 mg/L · Temp: 14.0°C · TAN: 0.011 mg/L',
-    },
-    {
-      interval: 'Interval 2 (09:30)',
-      title: 'Post-Feed 1 Water Quality Audit',
-      status: 'completed',
-      time: '09:32 AM',
-      operator: user?.fullName || 'Senior Technician',
-      values: 'DO: 8.5 mg/L · pH: 7.22 · Flow: 320 m³/h',
-    },
-    {
-      interval: 'Interval 3 (13:00)',
-      title: 'Midday Biofilter & MBBR Inspection',
-      status: 'completed',
-      time: '13:02 PM',
-      operator: 'Automated Gateway',
-      values: 'TAN: 0.012 mg/L · NO2-N: 0.04 mg/L · Pressure OK',
-    },
-    {
-      interval: 'Interval 4 (17:00)',
-      title: 'Afternoon Feed & Mortality Assessment',
-      status: 'in-progress',
-      time: 'Due in 35 mins',
-      operator: 'Pending',
-      values: 'Scheduled verification checklist',
-    },
-    {
-      interval: 'Interval 5 (21:00)',
-      title: 'Night Cycle Oxygenation & Backup Check',
-      status: 'scheduled',
-      time: 'Scheduled (21:00)',
-      operator: 'Night Supervisor',
-      values: 'Standby generators and backup telemetry',
-    },
-  ];
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      operator: formOperator || user?.fullName || 'Operator',
+      values: `DO: ${formDo} mg/L · Temp: ${formTemp}°C · TAN: ${formTan} mg/L · pH: ${formPh}`,
+      notes: formNotes,
+    };
+
+    setLogs((prev) => [newLog, ...prev.filter((item) => item.interval !== formInterval)]);
+    setIsLogModalOpen(false);
+    setSuccessToast(`Log entry recorded for ${formInterval}`);
+
+    setTimeout(() => {
+      setSuccessToast('');
+    }, 4000);
+  };
+
+  const filteredLogs = logs.filter(
+    (item) =>
+      item.interval.toLowerCase().includes(logSearchQuery.toLowerCase()) ||
+      item.title.toLowerCase().includes(logSearchQuery.toLowerCase()) ||
+      item.operator.toLowerCase().includes(logSearchQuery.toLowerCase()) ||
+      item.values.toLowerCase().includes(logSearchQuery.toLowerCase())
+  );
+
+  const completedCount = logs.filter((l) => l.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-background text-text-primary flex flex-col text-xs">
@@ -132,6 +204,14 @@ export default function DashboardPage() {
         isOpen={showTermsModal}
         onAccept={handleAcceptTerms}
       />
+
+      {/* Success Notification Toast */}
+      {successToast && (
+        <div className="fixed top-16 right-6 z-50 px-4 py-2.5 rounded-lg bg-status-success-bg border border-status-success/30 text-status-success shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <CheckCircle2 className="w-4 h-4 text-status-success shrink-0" />
+          <span className="font-semibold">{successToast}</span>
+        </div>
+      )}
 
       {/* Header Bar */}
       <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-border">
@@ -247,6 +327,23 @@ export default function DashboardPage() {
                 <LayoutDashboard className="w-4 h-4 shrink-0" />
                 {isSidebarOpen && <span>Dashboard</span>}
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('logs');
+                  setMobileMenuOpen(false);
+                }}
+                title="Log Entry Management"
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium transition-all ${
+                  activeTab === 'logs'
+                    ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
+                } ${!isSidebarOpen ? 'justify-center px-0' : 'justify-start'}`}
+              >
+                <FileCheck className="w-4 h-4 shrink-0" />
+                {isSidebarOpen && <span>Log Entry</span>}
+              </button>
             </nav>
           </div>
 
@@ -275,7 +372,134 @@ export default function DashboardPage() {
         <main className="flex-1 px-4 sm:px-6 py-6 space-y-6 min-w-0">
           {activeTab === 'settings' ? (
             <SettingsView user={user} />
+          ) : activeTab === 'logs' ? (
+            /* Log Entry Tab View */
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
+                <div>
+                  <h2 className="text-lg font-bold tracking-tight text-text-primary">
+                    Log Entry Management
+                  </h2>
+                  <p className="text-text-secondary text-xs">
+                    RAS protocol monitoring logs, water quality audits, and operator sign-offs.
+                  </p>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsLogModalOpen(true)}
+                  leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
+                  className="text-xs px-3.5 py-1.5 self-start sm:self-auto"
+                >
+                  Record Log Entry
+                </Button>
+              </div>
+
+              {/* Log Stats Overview */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 rounded-panel bg-surface border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-text-tertiary text-[11px]">Total Intervals</span>
+                    <div className="text-lg font-bold text-text-primary mt-0.5">{logs.length} Logged</div>
+                  </div>
+                  <ClipboardList className="w-5 h-5 text-brand opacity-80" />
+                </div>
+                <div className="p-3.5 rounded-panel bg-surface border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-text-tertiary text-[11px]">Completed Today</span>
+                    <div className="text-lg font-bold text-status-success mt-0.5">{completedCount} / 5 Recorded</div>
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-status-success opacity-80" />
+                </div>
+                <div className="p-3.5 rounded-panel bg-surface border border-border flex items-center justify-between">
+                  <div>
+                    <span className="text-text-tertiary text-[11px]">Protocol Status</span>
+                    <div className="text-lg font-bold text-text-primary mt-0.5">100% Compliant</div>
+                  </div>
+                  <ShieldCheck className="w-5 h-5 text-brand opacity-80" />
+                </div>
+              </div>
+
+              {/* Search & Filter */}
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="w-3.5 h-3.5 text-text-tertiary absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={logSearchQuery}
+                    onChange={(e) => setLogSearchQuery(e.target.value)}
+                    placeholder="Search logs by interval, operator, parameters..."
+                    className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:border-brand transition-colors text-text-primary"
+                  />
+                </div>
+              </div>
+
+              {/* Log Table View */}
+              <div className="rounded-panel bg-surface border border-border shadow-card overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-border bg-surface-secondary/50 text-text-tertiary font-medium">
+                        <th className="py-2.5 px-3">Interval & Routine</th>
+                        <th className="py-2.5 px-3">Status</th>
+                        <th className="py-2.5 px-3">Parameters Recorded</th>
+                        <th className="py-2.5 px-3">Operator</th>
+                        <th className="py-2.5 px-3 text-right">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {filteredLogs.length > 0 ? (
+                        filteredLogs.map((item) => (
+                          <tr key={item.id} className="hover:bg-surface-secondary/30 transition-colors">
+                            <td className="py-3 px-3">
+                              <div className="font-semibold text-text-primary">{item.interval}</div>
+                              <div className="text-text-secondary text-[11px]">{item.title}</div>
+                              {item.notes && (
+                                <div className="text-text-tertiary text-[10px] mt-0.5 italic">
+                                  "{item.notes}"
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-3">
+                              {item.status === 'completed' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-status-success-bg text-status-success border border-status-success/20">
+                                  <Check className="w-3 h-3" /> Recorded
+                                </span>
+                              )}
+                              {item.status === 'in-progress' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-status-warning-bg text-status-warning border border-status-warning/20">
+                                  <Clock className="w-3 h-3" /> Due
+                                </span>
+                              )}
+                              {item.status === 'scheduled' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-secondary text-text-tertiary border border-border">
+                                  Scheduled
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-3 font-mono text-[11px] text-text-secondary">
+                              {item.values}
+                            </td>
+                            <td className="py-3 px-3 font-medium text-text-primary">{item.operator}</td>
+                            <td className="py-3 px-3 text-right text-text-tertiary font-mono text-[11px]">
+                              {item.time}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="py-6 text-center text-text-tertiary">
+                            No log entries match your filter query.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           ) : (
+            /* Dashboard View */
             <>
               {/* Active Protocol Status Bar */}
               <div className="p-3 rounded-panel bg-brand-subtle/40 border border-brand/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -294,6 +518,7 @@ export default function DashboardPage() {
                 <Button
                   variant="primary"
                   size="sm"
+                  onClick={() => setIsLogModalOpen(true)}
                   leftIcon={<PlusCircle className="w-3.5 h-3.5" />}
                   className="text-xs px-3 py-1"
                 >
@@ -359,22 +584,32 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* 5-Interval Checklist Log */}
+              {/* 5-Interval Monitoring Log */}
               <div className="p-5 rounded-panel bg-surface border border-border shadow-card space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-border">
                   <h3 className="font-semibold text-text-primary">
                     5-Interval Monitoring Log
                   </h3>
-                  <div className="flex items-center gap-1.5 font-mono text-text-tertiary">
-                    <FileCheck className="w-3.5 h-3.5 text-brand" />
-                    <span>3 / 5 Logged</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 font-mono text-text-tertiary">
+                      <FileCheck className="w-3.5 h-3.5 text-brand" />
+                      <span>{completedCount} / 5 Logged</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsLogModalOpen(true)}
+                      className="text-[11px] h-7 px-2 text-brand hover:text-brand-hover"
+                    >
+                      + New Entry
+                    </Button>
                   </div>
                 </div>
 
                 <div className="divide-y divide-border">
-                  {checklistIntervals.map((item, idx) => (
+                  {logs.map((item) => (
                     <div
-                      key={idx}
+                      key={item.id}
                       className="py-2.5 flex items-center justify-between gap-2"
                     >
                       <div className="space-y-0.5">
@@ -390,6 +625,11 @@ export default function DashboardPage() {
                           {item.status === 'in-progress' && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-status-warning-bg text-status-warning border border-status-warning/20">
                               Due
+                            </span>
+                          )}
+                          {item.status === 'scheduled' && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-surface-secondary text-text-tertiary border border-border">
+                              Scheduled
                             </span>
                           )}
                         </div>
@@ -409,11 +649,166 @@ export default function DashboardPage() {
         </main>
       </div>
 
+      {/* Interactive Log Entry Modal */}
+      {isLogModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-lg rounded-panel bg-surface border border-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-border flex items-center justify-between bg-surface-secondary/40">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                  <FileCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-text-primary text-sm">Record Protocol Log Entry</h3>
+                  <p className="text-[11px] text-text-secondary">Input RAS monitoring parameters for compliance audit</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLogModalOpen(false)}
+                className="p-1 text-text-secondary hover:text-text-primary rounded-md"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLogEntry} className="p-5 space-y-4 overflow-y-auto">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary">Monitoring Interval</label>
+                <select
+                  value={formInterval}
+                  onChange={(e) => {
+                    setFormInterval(e.target.value);
+                    if (e.target.value.includes('Interval 1')) setFormTitle('Morning Routine & Dissolved Oxygen');
+                    else if (e.target.value.includes('Interval 2')) setFormTitle('Post-Feed 1 Water Quality Audit');
+                    else if (e.target.value.includes('Interval 3')) setFormTitle('Midday Biofilter & MBBR Inspection');
+                    else if (e.target.value.includes('Interval 4')) setFormTitle('Afternoon Feed & Mortality Assessment');
+                    else if (e.target.value.includes('Interval 5')) setFormTitle('Night Cycle Oxygenation & Backup Check');
+                  }}
+                  className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:border-brand text-text-primary font-medium"
+                >
+                  <option value="Interval 1 (06:00)">Interval 1 (06:00 AM) - Morning Routine</option>
+                  <option value="Interval 2 (09:30)">Interval 2 (09:30 AM) - Post-Feed 1</option>
+                  <option value="Interval 3 (13:00)">Interval 3 (01:00 PM) - Midday Biofilter</option>
+                  <option value="Interval 4 (17:00)">Interval 4 (05:00 PM) - Afternoon Feed</option>
+                  <option value="Interval 5 (21:00)">Interval 5 (09:00 PM) - Night Cycle</option>
+                  <option value="Custom Protocol">Custom Operational Routine</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary">Routine Title / Activity</label>
+                <input
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:border-brand text-text-primary font-medium"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-text-secondary">DO (mg/L)</label>
+                  <input
+                    type="text"
+                    value={formDo}
+                    onChange={(e) => setFormDo(e.target.value)}
+                    placeholder="8.4"
+                    className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-mono focus:outline-none focus:border-brand text-text-primary"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-text-secondary">Temp (°C)</label>
+                  <input
+                    type="text"
+                    value={formTemp}
+                    onChange={(e) => setFormTemp(e.target.value)}
+                    placeholder="14.2"
+                    className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-mono focus:outline-none focus:border-brand text-text-primary"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-text-secondary">TAN (mg/L)</label>
+                  <input
+                    type="text"
+                    value={formTan}
+                    onChange={(e) => setFormTan(e.target.value)}
+                    placeholder="0.013"
+                    className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-mono focus:outline-none focus:border-brand text-text-primary"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-text-secondary">pH Level</label>
+                  <input
+                    type="text"
+                    value={formPh}
+                    onChange={(e) => setFormPh(e.target.value)}
+                    placeholder="7.20"
+                    className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs font-mono focus:outline-none focus:border-brand text-text-primary"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary">Operator / Supervisor Name</label>
+                <input
+                  type="text"
+                  value={formOperator}
+                  onChange={(e) => setFormOperator(e.target.value)}
+                  className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:border-brand text-text-primary font-medium"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-text-secondary">Notes / Remarks</label>
+                <textarea
+                  value={formNotes}
+                  onChange={(e) => setFormNotes(e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-1.5 rounded-lg bg-surface border border-border text-xs focus:outline-none focus:border-brand text-text-primary"
+                  placeholder="Additional observations, flow rates, biofilter remarks..."
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsLogModalOpen(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Check className="w-3.5 h-3.5" />}
+                  className="text-xs px-4"
+                >
+                  Save Log Entry
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 py-4 text-[11px] text-text-tertiary flex items-center justify-between gap-2 border-t border-border mt-auto">
         <span>© 2026 Aero Intelli. AERIQ RAS</span>
         <span>Venigem SaaS Platform</span>
       </footer>
     </div>
+  );
+}
+
   );
 }

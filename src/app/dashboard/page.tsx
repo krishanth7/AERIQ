@@ -311,39 +311,63 @@ export default function DashboardPage() {
             </div>
 
             <nav className="space-y-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('dashboard');
-                  setMobileMenuOpen(false);
-                }}
-                title="Dashboard Overview"
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === 'dashboard'
-                    ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
-                } ${!isSidebarOpen ? 'justify-center px-0' : 'justify-start'}`}
-              >
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                {isSidebarOpen && <span>Dashboard</span>}
-              </button>
+              {/* Dashboard Main Parent & Sub-items */}
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('dashboard');
+                    setMobileMenuOpen(false);
+                  }}
+                  title="Dashboard Overview"
+                  className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium transition-all ${
+                    activeTab === 'dashboard'
+                      ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
+                  } ${!isSidebarOpen ? 'justify-center px-0' : 'justify-start'}`}
+                >
+                  <LayoutDashboard className="w-4 h-4 shrink-0" />
+                  {isSidebarOpen && <span>Dashboard</span>}
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('logs');
-                  setMobileMenuOpen(false);
-                }}
-                title="Log Entry Management"
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg font-medium transition-all ${
-                  activeTab === 'logs'
-                    ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
-                } ${!isSidebarOpen ? 'justify-center px-0' : 'justify-start'}`}
-              >
-                <FileCheck className="w-4 h-4 shrink-0" />
-                {isSidebarOpen && <span>Log Entry</span>}
-              </button>
+                {/* Sub-menu item under Dashboard */}
+                {isSidebarOpen ? (
+                  <div className="pl-4 space-y-1 border-l-2 border-border/60 ml-3.5 my-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('logs');
+                        setMobileMenuOpen(false);
+                      }}
+                      title="Log Entry Management"
+                      className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-all ${
+                        activeTab === 'logs'
+                          ? 'bg-brand/15 text-brand font-semibold border border-brand/30 shadow-subtle'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
+                      }`}
+                    >
+                      <FileCheck className="w-3.5 h-3.5 shrink-0 text-brand" />
+                      <span>Log Entry</span>
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('logs');
+                      setMobileMenuOpen(false);
+                    }}
+                    title="Log Entry Management"
+                    className={`w-full flex items-center justify-center py-2 rounded-lg transition-all ${
+                      activeTab === 'logs'
+                        ? 'bg-brand text-neutral-950 font-semibold shadow-subtle'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-secondary'
+                    }`}
+                  >
+                    <FileCheck className="w-4 h-4 shrink-0" />
+                  </button>
+                )}
+              </div>
             </nav>
           </div>
 

@@ -22,12 +22,375 @@ import {
   Headphones,
   X,
   ShieldAlert,
+  FileText,
+  Search,
+  Check,
+  FileCheck,
+  Printer,
+  Sparkles,
+  Download,
+  Eye,
+  Filter,
 } from 'lucide-react';
 
 interface InteractiveMapPreviewProps {
   latitude: string;
   longitude: string;
   onChangeLocation: (lat: string, lng: string) => void;
+}
+
+export interface CorporateDocument {
+  slNo: number;
+  id: string;
+  title: string;
+  originalTitle: string;
+  code: string;
+  stage: string;
+  stageBadgeColor: string;
+  fileSize: string;
+  version: string;
+  description: string;
+  keyFields: string[];
+}
+
+// User-provided SVG Icons with responsive styling and currentColor compatibility
+function ViewCustomSvgIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <g clipPath="url(#clip0_4418_8295)">
+        <path d="M21.25 9.14969C18.94 5.51969 15.56 3.42969 12 3.42969C10.22 3.42969 8.49 3.94969 6.91 4.91969C5.33 5.89969 3.91 7.32969 2.75 9.14969C1.75 10.7197 1.75 13.2697 2.75 14.8397C5.06 18.4797 8.44 20.5597 12 20.5597C13.78 20.5597 15.51 20.0397 17.09 19.0697C18.67 18.0897 20.09 16.6597 21.25 14.8397C22.25 13.2797 22.25 10.7197 21.25 9.14969ZM12 16.0397C9.76 16.0397 7.96 14.2297 7.96 11.9997C7.96 9.76969 9.76 7.95969 12 7.95969C14.24 7.95969 16.04 9.76969 16.04 11.9997C16.04 14.2297 14.24 16.0397 12 16.0397Z" />
+        <path d="M11.9999 9.14062C10.4299 9.14062 9.1499 10.4206 9.1499 12.0006C9.1499 13.5706 10.4299 14.8506 11.9999 14.8506C13.5699 14.8506 14.8599 13.5706 14.8599 12.0006C14.8599 10.4306 13.5699 9.14062 11.9999 9.14062Z" />
+      </g>
+      <defs>
+        <clipPath id="clip0_4418_8295">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+function DownloadCustomSvgIcon({ className = 'w-5 h-5' }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <g clipPath="url(#clip0_4418_8507)">
+        <path d="M20.5 10.19H17.61C15.24 10.19 13.31 8.26 13.31 5.89V3C13.31 2.45 12.86 2 12.31 2H8.07C4.99 2 2.5 4 2.5 7.57V16.43C2.5 20 4.99 22 8.07 22H15.93C19.01 22 21.5 20 21.5 16.43V11.19C21.5 10.64 21.05 10.19 20.5 10.19ZM12.28 15.78L10.28 17.78C10.21 17.85 10.12 17.91 10.03 17.94C9.94 17.98 9.85 18 9.75 18C9.65 18 9.56 17.98 9.47 17.94C9.39 17.91 9.31 17.85 9.25 17.79C9.24 17.78 9.23 17.78 9.23 17.77L7.23 15.77C6.94 15.48 6.94 15 7.23 14.71C7.52 14.42 8 14.42 8.29 14.71L9 15.44V11.25C9 10.84 9.34 10.5 9.75 10.5C10.16 10.5 10.5 10.84 10.5 11.25V15.44L11.22 14.72C11.51 14.43 11.99 14.43 12.28 14.72C12.57 15.01 12.57 15.49 12.28 15.78Z" />
+        <path d="M17.4299 8.81048C18.3799 8.82048 19.6999 8.82048 20.8299 8.82048C21.3999 8.82048 21.6999 8.15048 21.2999 7.75048C19.8599 6.30048 17.2799 3.69048 15.7999 2.21048C15.3899 1.80048 14.6799 2.08048 14.6799 2.65048V6.14048C14.6799 7.60048 15.9199 8.81048 17.4299 8.81048Z" />
+      </g>
+      <defs>
+        <clipPath id="clip0_4418_8507">
+          <rect width="24" height="24" fill="white" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+}
+
+// Complete 22 Master Documents in RAS (Requirements, Architecture, Supply, Execution, Handover, Settlement) Order
+const DOCUMENT_ITEMS: CorporateDocument[] = [
+  {
+    slNo: 1,
+    id: 'doc-lead-registration',
+    title: 'Lead Registration Form',
+    originalTitle: 'Lead Registration Form?',
+    code: 'AERIQ-DOC-001',
+    stage: 'Stage 1: Lead & Discovery',
+    stageBadgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    fileSize: '1.2 MB',
+    version: 'v2.1',
+    description: 'Formal registration of new client lead, initial project site details, capacity scope, and contact matrix.',
+    keyFields: ['Lead ID', 'Client Name', 'Facility Location', 'Target Capacity', 'Lead Source'],
+  },
+  {
+    slNo: 2,
+    id: 'doc-crd',
+    title: 'Customer Requirement Document (CRD)',
+    originalTitle: 'Customer Requriement Document',
+    code: 'AERIQ-DOC-002',
+    stage: 'Stage 1: Lead & Discovery',
+    stageBadgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+    fileSize: '2.4 MB',
+    version: 'v1.4',
+    description: 'Comprehensive specification document capturing operational parameters, water quality targets, and site constraints.',
+    keyFields: ['Water Parameters', 'Aeration Capacity', 'Power Grid Spec', 'Target Biomass', 'Site Topography'],
+  },
+  {
+    slNo: 3,
+    id: 'doc-nda',
+    title: 'Non-Disclosure Agreement (NDA)',
+    originalTitle: 'NDA Non-Disclouser-Agremment',
+    code: 'AERIQ-DOC-003',
+    stage: 'Stage 2: Legal & Mutual Alignment',
+    stageBadgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+    fileSize: '840 KB',
+    version: 'v3.0',
+    description: 'Bilateral legal contract protecting technical IP, farm operational data, and commercial discussions.',
+    keyFields: ['Effective Date', 'Disclosing Party', 'Receiving Party', 'Term Duration', 'Jurisdiction'],
+  },
+  {
+    slNo: 4,
+    id: 'doc-mou',
+    title: 'Memorandum of Understanding (MOU)',
+    originalTitle: 'MOU Memorandum of Understanding',
+    code: 'AERIQ-DOC-004',
+    stage: 'Stage 2: Legal & Mutual Alignment',
+    stageBadgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+    fileSize: '1.1 MB',
+    version: 'v2.0',
+    description: 'Framework agreement establishing intent to collaborate on aquaculture automation and equipment deployment.',
+    keyFields: ['Scope of Cooperation', 'Roles & Responsibilities', 'Milestones', 'Validity Period'],
+  },
+  {
+    slNo: 5,
+    id: 'doc-tech-proposal',
+    title: 'Preliminary Technical Proposal',
+    originalTitle: 'Prelimilary Techincal Proposal',
+    code: 'AERIQ-DOC-005',
+    stage: 'Stage 3: Proposals & Commercials',
+    stageBadgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    fileSize: '4.8 MB',
+    version: 'v1.8',
+    description: 'Engineering proposal detailing AERIQ system architecture, oxygenation calculations, and sensor layout.',
+    keyFields: ['System Design', 'Flow Diagrams', 'Aerator Sizing', 'Automation Topology', 'Bill of Quantities'],
+  },
+  {
+    slNo: 6,
+    id: 'doc-cost-estimate',
+    title: 'Preliminary Cost Estimate',
+    originalTitle: 'Prelimilary Cost Estimate',
+    code: 'AERIQ-DOC-006',
+    stage: 'Stage 3: Proposals & Commercials',
+    stageBadgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    fileSize: '1.6 MB',
+    version: 'v1.5',
+    description: 'Indicative financial breakdown covering hardware, freight, installation, commissioning, and support.',
+    keyFields: ['Hardware CAPEX', 'Installation OPEX', 'Freight Estimate', 'Taxes & Duties', 'Total Budget'],
+  },
+  {
+    slNo: 7,
+    id: 'doc-price-list',
+    title: 'Standard Price List',
+    originalTitle: 'Price List',
+    code: 'AERIQ-DOC-007',
+    stage: 'Stage 3: Proposals & Commercials',
+    stageBadgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    fileSize: '950 KB',
+    version: 'v2026.1',
+    description: 'Approved corporate tariff catalog for AERIQ aeration units, sensors, control panels, and spares.',
+    keyFields: ['SKU Code', 'Component Description', 'Unit Price', 'Warranty Tier', 'Lead Time'],
+  },
+  {
+    slNo: 8,
+    id: 'doc-quotation-acceptance',
+    title: 'Quotation Acceptance',
+    originalTitle: 'Quotation Acceptance',
+    code: 'AERIQ-DOC-008',
+    stage: 'Stage 3: Proposals & Commercials',
+    stageBadgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+    fileSize: '780 KB',
+    version: 'v1.2',
+    description: 'Client authorization letter confirming acceptance of final commercial quotation and payment terms.',
+    keyFields: ['Quotation Ref', 'Approved Amount', 'Client Signatory', 'Purchase Order Ref', 'Acceptance Date'],
+  },
+  {
+    slNo: 9,
+    id: 'doc-supply-agreement',
+    title: 'Supply Agreement',
+    originalTitle: 'Supply Agremment',
+    code: 'AERIQ-DOC-009',
+    stage: 'Stage 4: Contracting & Procurement',
+    stageBadgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    fileSize: '3.2 MB',
+    version: 'v2.2',
+    description: 'Definitive commercial contract detailing equipment delivery, payment schedule, title transfer, and liabilities.',
+    keyFields: ['Contract Value', 'Payment Schedule', 'Delivery Terms (Incoterms)', 'Warranty Terms', 'Termination'],
+  },
+  {
+    slNo: 10,
+    id: 'doc-advance-receipt',
+    title: 'Advance Payment Receipt',
+    originalTitle: 'Advance Payment Recipt',
+    code: 'AERIQ-DOC-010',
+    stage: 'Stage 4: Contracting & Procurement',
+    stageBadgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    fileSize: '620 KB',
+    version: 'v1.0',
+    description: 'Official financial voucher confirming receipt of contract mobilization advance payment.',
+    keyFields: ['Receipt No', 'Transaction Reference', 'Amount Paid', 'Tax Invoice No', 'Bank Confirmation'],
+  },
+  {
+    slNo: 11,
+    id: 'doc-material-purchase',
+    title: 'Material Purchase Records',
+    originalTitle: 'Material Purcahse Records Document',
+    code: 'AERIQ-DOC-011',
+    stage: 'Stage 4: Contracting & Procurement',
+    stageBadgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+    fileSize: '2.9 MB',
+    version: 'v1.1',
+    description: 'Traceability record of raw materials, motors, sensors, and structural components procured for the project.',
+    keyFields: ['PO Reference', 'Supplier Name', 'Batch Serial Numbers', 'Mill Test Certificates', 'Quality Clearance'],
+  },
+  {
+    slNo: 12,
+    id: 'doc-pdi-report',
+    title: 'Pre-Dispatch Inspection (PDI) Report',
+    originalTitle: 'Pre Dispatch Inspection PDI',
+    code: 'AERIQ-DOC-012',
+    stage: 'Stage 5: Quality & Dispatch',
+    stageBadgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    fileSize: '3.5 MB',
+    version: 'v1.6',
+    description: 'Factory acceptance test (FAT) documentation certifying electrical insulation, pressure tests, and motor runs.',
+    keyFields: ['Inspection Date', 'Inspector Sign-off', 'Motor Insulation Test', 'Pressure Rating', 'Pass/Fail Status'],
+  },
+  {
+    slNo: 13,
+    id: 'doc-delivery-challan',
+    title: 'Delivery Challan (DC)',
+    originalTitle: 'Delivery Challan DC',
+    code: 'AERIQ-DOC-013',
+    stage: 'Stage 5: Quality & Dispatch',
+    stageBadgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+    fileSize: '890 KB',
+    version: 'v1.3',
+    description: 'Goods dispatch note listing serialized hardware, shipment packages, carrier details, and tracking number.',
+    keyFields: ['Challan No', 'Vehicle No', 'Transporter Name', 'Itemized Hardware List', 'Receiver Signature'],
+  },
+  {
+    slNo: 14,
+    id: 'doc-site-readiness',
+    title: 'Site Readiness Checklist',
+    originalTitle: 'Site Readness Checklist',
+    code: 'AERIQ-DOC-014',
+    stage: 'Stage 6: Site Deployment',
+    stageBadgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    fileSize: '1.4 MB',
+    version: 'v2.1',
+    description: 'Pre-installation verification of civil foundations, power availability, cable trenching, and safety clearance.',
+    keyFields: ['Civil Foundation', '3-Phase Power', 'Water Level Clearance', 'Control Room Setup', 'Safety Audit'],
+  },
+  {
+    slNo: 15,
+    id: 'doc-installation-report',
+    title: 'Installation & Commissioning Report',
+    originalTitle: 'Installation Report',
+    code: 'AERIQ-DOC-015',
+    stage: 'Stage 6: Site Deployment',
+    stageBadgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+    fileSize: '5.1 MB',
+    version: 'v2.0',
+    description: 'Field engineer log documenting physical assembly, wiring, telemetry sync, and initial trial runs.',
+    keyFields: ['Site Engineer ID', 'Commissioning Date', 'Telemetry Signal Strength', 'Trial Run Hours', 'Sign-off'],
+  },
+  {
+    slNo: 16,
+    id: 'doc-warranty-certificate',
+    title: 'Warranty Certificate',
+    originalTitle: 'Warrent VCeritificate',
+    code: 'AERIQ-DOC-016',
+    stage: 'Stage 7: Handover & Acceptance',
+    stageBadgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+    fileSize: '980 KB',
+    version: 'v1.0',
+    description: 'Official manufacturer warranty certificate specifying coverage periods, component guarantees, and SLA terms.',
+    keyFields: ['Certificate No', 'Warranty Period', 'Covered Components', 'Exclusions', 'Support Contacts'],
+  },
+  {
+    slNo: 17,
+    id: 'doc-client-acceptance',
+    title: 'Client Acceptance Certificate',
+    originalTitle: 'Client Acceptance Ceritificate',
+    code: 'AERIQ-DOC-017',
+    stage: 'Stage 7: Handover & Acceptance',
+    stageBadgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+    fileSize: '1.2 MB',
+    version: 'v1.5',
+    description: 'End-user sign-off confirming satisfactory performance, operational handover, and site training completion.',
+    keyFields: ['Client Officer Sign-off', 'Performance Validation', 'Training Confirmation', 'Acceptance Date'],
+  },
+  {
+    slNo: 18,
+    id: 'doc-project-handover',
+    title: 'Project Handover Certificate',
+    originalTitle: 'Poject Handover Ceritificate',
+    code: 'AERIQ-DOC-018',
+    stage: 'Stage 7: Handover & Acceptance',
+    stageBadgeColor: 'bg-teal-500/10 text-teal-400 border-teal-500/30',
+    fileSize: '1.5 MB',
+    version: 'v1.4',
+    description: 'Formal document transferring operational control, maintenance manuals, and system access keys to client.',
+    keyFields: ['Handover Manager', 'Asset Tag Ledger', 'Admin Credentials Handover', 'As-Built Drawings'],
+  },
+  {
+    slNo: 19,
+    id: 'doc-final-payment-receipt',
+    title: 'Final Payment Receipt',
+    originalTitle: 'Final Payment RTecipt',
+    code: 'AERIQ-DOC-019',
+    stage: 'Stage 8: Financial Settlement & Closure',
+    stageBadgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    fileSize: '710 KB',
+    version: 'v1.0',
+    description: 'Finance department voucher acknowledging receipt of final balance and retention release funds.',
+    keyFields: ['Voucher Ref', 'Total Contract Settled', 'Retention Release Amount', 'Zero Balance Clearance'],
+  },
+  {
+    slNo: 20,
+    id: 'doc-completion-closure-cert',
+    title: 'Project Completion & Closure Certificate',
+    originalTitle: 'Project Completion C Vlouser',
+    code: 'AERIQ-DOC-020',
+    stage: 'Stage 8: Financial Settlement & Closure',
+    stageBadgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    fileSize: '1.8 MB',
+    version: 'v2.0',
+    description: 'Jointly signed master certificate declaring all contractual obligations successfully fulfilled.',
+    keyFields: ['Project ID', 'Final Completion Date', 'Contract Compliance', 'Joint Signatures'],
+  },
+  {
+    slNo: 21,
+    id: 'doc-closure-report',
+    title: 'Project Closure Report',
+    originalTitle: 'Project Clouser Report',
+    code: 'AERIQ-DOC-021',
+    stage: 'Stage 8: Financial Settlement & Closure',
+    stageBadgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    fileSize: '4.2 MB',
+    version: 'v1.9',
+    description: 'Comprehensive post-project evaluation report detailing schedule adherence, budget variance, and technical metrics.',
+    keyFields: ['Project Summary', 'KPI Evaluation', 'Financial Variance', 'Lessons Learned', 'Archive Reference'],
+  },
+  {
+    slNo: 22,
+    id: 'doc-closure-approval',
+    title: 'Project Closure Approval',
+    originalTitle: 'Project Clouser Approval',
+    code: 'AERIQ-DOC-022',
+    stage: 'Stage 8: Financial Settlement & Closure',
+    stageBadgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/30',
+    fileSize: '890 KB',
+    version: 'v1.0',
+    description: 'Executive management board resolution authorizing formal project site release and document archiving.',
+    keyFields: ['Board Resolution No', 'Executive Signatory', 'Archive Location', 'Decommissioning Date'],
+  },
+];
+
+interface SettingsViewProps {
+  user: AuthUser | null;
+  onUpdateUser?: (updated: Partial<AuthUser>) => void;
 }
 
 function InteractiveMapPreview({ latitude, longitude, onChangeLocation }: InteractiveMapPreviewProps) {
@@ -198,9 +561,66 @@ function SaveCustomIcon({ className = 'w-6 h-6' }: { className?: string }) {
 }
 
 export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'general' | 'configuration' | 'security' | 'notifications'>('general');
+  const [activeSubTab, setActiveSubTab] = useState<'general' | 'configuration' | 'documents' | 'security' | 'notifications'>('general');
   const [isSaved, setIsSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Document Management State
+  const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docStageFilter, setDocStageFilter] = useState<string>('All');
+  const [selectedDocModal, setSelectedDocModal] = useState<CorporateDocument | null>(null);
+  const [downloadToast, setDownloadToast] = useState<string | null>(null);
+
+  const filteredDocuments = DOCUMENT_ITEMS.filter((doc) => {
+    const matchesSearch =
+      doc.title.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
+      doc.originalTitle.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
+      doc.code.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
+      doc.description.toLowerCase().includes(docSearchQuery.toLowerCase());
+    const matchesStage = docStageFilter === 'All' || doc.stage === docStageFilter;
+    return matchesSearch && matchesStage;
+  });
+
+  const handleDownloadDoc = (doc: CorporateDocument) => {
+    const content = `================================================================================
+AERIQ ADVANCED AQUACULTURE TECHNOLOGIES
+CORPORATE GOVERNANCE & PROJECT MANAGEMENT SYSTEM
+================================================================================
+
+DOCUMENT TITLE  : ${doc.title.toUpperCase()}
+DOCUMENT CODE   : ${doc.code}
+RAS STAGE       : ${doc.stage}
+VERSION         : ${doc.version}
+FILE SIZE       : ${doc.fileSize}
+STATUS          : APPROVED & OFFICIALLY ISSUED
+
+DESCRIPTION:
+${doc.description}
+
+KEY DATA FIELDS & GOVERNANCE REQUIREMENTS:
+${doc.keyFields.map((f, i) => `  ${i + 1}. ${f}`).join('\n')}
+
+--------------------------------------------------------------------------------
+CONFIDENTIALITY NOTICE:
+This document contains proprietary information belonging to AERIQ / Venigem Advanced
+Technologies. Any unauthorized review, distribution, or copying is strictly prohibited.
+================================================================================
+`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${doc.code}_${doc.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    setDownloadToast(`Downloading ${doc.code} (${doc.title})...`);
+    setTimeout(() => {
+      setDownloadToast(null);
+    }, 4000);
+  };
 
   // General profile form state
   const [generalData, setGeneralData] = useState({
@@ -376,6 +796,7 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   const settingsMenu = [
     { id: 'general', label: 'General', icon: User },
     { id: 'configuration', label: 'Configuration', icon: Sliders },
+    { id: 'documents', label: 'Documents', icon: FileText },
     { id: 'security', label: 'Security & Auth', icon: Key },
     { id: 'notifications', label: 'Notifications', icon: Bell },
   ];
@@ -715,6 +1136,69 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
             </div>
           )}
 
+          {/* Documents View - Ultra-Minimal Master Documents List */}
+          {activeSubTab === 'documents' && (
+            <div className="p-5 rounded-panel bg-surface border border-border shadow-card space-y-4">
+              <div className="pb-3 border-b border-border">
+                <h2 className="font-semibold text-text-primary flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-brand" />
+                  <span>Documents</span>
+                </h2>
+              </div>
+
+              {/* Minimal Documents Table */}
+              <div className="rounded-xl border border-border overflow-hidden bg-surface-secondary/20">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-surface-secondary/60 border-b border-border text-[11px] font-semibold text-text-secondary">
+                      <th className="py-2.5 px-3.5 w-16 text-center">Sl No</th>
+                      <th className="py-2.5 px-4">Document Name</th>
+                      <th className="py-2.5 px-3.5 text-right w-36">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/50 text-xs">
+                    {DOCUMENT_ITEMS.map((doc) => (
+                      <tr
+                        key={doc.id}
+                        className="hover:bg-surface-secondary/60 transition-colors"
+                      >
+                        <td className="py-2.5 px-3.5 text-center font-mono font-medium text-text-secondary">
+                          {doc.slNo}
+                        </td>
+                        <td className="py-2.5 px-4 font-medium text-text-primary">
+                          {doc.title}
+                        </td>
+                        <td className="py-2.5 px-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedDocModal(doc)}
+                              title="View"
+                              className="px-2.5 py-1.5 rounded-lg bg-surface-secondary hover:bg-brand/20 border border-border text-text-primary hover:text-brand transition-all flex items-center gap-1.5 text-[11px] font-medium"
+                            >
+                              <ViewCustomSvgIcon className="w-4 h-4 text-brand shrink-0" />
+                              <span>View</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadDoc(doc)}
+                              title="Download"
+                              className="px-2.5 py-1.5 rounded-lg bg-brand hover:bg-brand-hover text-neutral-950 transition-all flex items-center gap-1.5 text-[11px] font-semibold shadow-subtle active:scale-95 shrink-0"
+                            >
+                              <DownloadCustomSvgIcon className="w-4 h-4 text-neutral-950 shrink-0" />
+                              <span>Download</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {/* Security View */}
           {activeSubTab === 'security' && (
             <div className="p-5 rounded-panel bg-surface border border-border shadow-card space-y-4">
@@ -807,6 +1291,137 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
                 className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl border border-border hover:bg-surface-secondary text-text-primary font-medium text-xs transition-colors"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Corporate Document Viewing Modal */}
+      {selectedDocModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl bg-surface border border-white/10 dark:border-white/20 shadow-elevated overflow-hidden animate-scale-up">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-border flex items-center justify-between bg-surface-secondary/50">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-brand/10 border border-brand/20 text-brand flex items-center justify-center font-mono font-bold text-xs">
+                  {String(selectedDocModal.slNo).padStart(2, '0')}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-text-primary text-sm">
+                    {selectedDocModal.title}
+                  </h3>
+                  <div className="flex items-center gap-2 text-[11px] text-text-muted">
+                    <span className="font-mono">{selectedDocModal.code}</span>
+                    <span>•</span>
+                    <span>{selectedDocModal.stage}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedDocModal(null)}
+                className="text-text-muted hover:text-text-primary p-1 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: Document Preview */}
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              {/* Document Header Specs */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-surface-secondary/50 border border-border">
+                <div>
+                  <span className="text-[10px] text-text-muted block">Document Version</span>
+                  <span className="font-mono font-semibold text-text-primary">{selectedDocModal.version}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-text-muted block">File Size</span>
+                  <span className="font-medium text-text-primary">{selectedDocModal.fileSize}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-text-muted block">Status</span>
+                  <span className="text-status-success font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Approved</span>
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-text-muted block">Issuing Authority</span>
+                  <span className="font-medium text-text-primary">AERIQ QA/QC</span>
+                </div>
+              </div>
+
+              {/* Corporate Document Template Box */}
+              <div className="p-5 rounded-xl border border-border bg-neutral-950 text-neutral-100 font-sans space-y-4 shadow-inner relative overflow-hidden">
+                <div className="absolute right-4 top-4 opacity-5 pointer-events-none text-right">
+                  <span className="text-6xl font-bold font-mono">AERIQ</span>
+                </div>
+
+                <div className="border-b border-neutral-800 pb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-brand flex items-center justify-center text-neutral-950 font-bold text-xs">
+                      A
+                    </div>
+                    <span className="font-semibold text-sm tracking-wide text-white">
+                      AERIQ CORPORATE GOVERNANCE
+                    </span>
+                  </div>
+                  <span className="font-mono text-[10px] text-neutral-400">
+                    CONFIDENTIAL
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-base font-bold text-brand">
+                    {selectedDocModal.title}
+                  </h4>
+                  <p className="text-neutral-300 leading-relaxed text-xs">
+                    {selectedDocModal.description}
+                  </p>
+                </div>
+
+                {/* Key Fields Checklist */}
+                <div className="pt-2">
+                  <h5 className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">
+                    Mandatory Data Fields & Governance Criteria
+                  </h5>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {selectedDocModal.keyFields.map((field, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center gap-2 text-[11px] text-neutral-200"
+                      >
+                        <FileCheck className="w-3.5 h-3.5 text-brand shrink-0" />
+                        <span>{field}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-border flex items-center justify-end gap-2 bg-surface-secondary/40">
+              <button
+                type="button"
+                onClick={() => setSelectedDocModal(null)}
+                className="px-4 py-2 rounded-xl border border-border hover:bg-surface-secondary text-text-primary font-medium text-xs transition-colors"
+              >
+                Close Preview
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleDownloadDoc(selectedDocModal);
+                  setSelectedDocModal(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-brand hover:bg-brand-hover text-neutral-950 font-semibold text-xs transition-all shadow-subtle flex items-center gap-1.5 active:scale-95"
+              >
+                <DownloadCustomSvgIcon className="w-4 h-4 text-neutral-950" />
+                <span>Download Official Document</span>
               </button>
             </div>
           </div>

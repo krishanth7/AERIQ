@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
-import { getAuth, Auth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence, Auth } from "firebase/auth";
 import { getFirestore, Firestore } from "firebase/firestore";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -21,8 +21,13 @@ export const firebaseConfig = {
 // Initialize Firebase (safeguarding against re-initialization during Next.js hot reload)
 export const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth
+// Initialize Firebase Auth with local persistence
 export const auth: Auth = getAuth(app);
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserLocalPersistence).catch(() => {
+    // Fallback if browser environment restricts storage
+  });
+}
 
 // Initialize Cloud Firestore
 export const db: Firestore = getFirestore(app);

@@ -31,27 +31,53 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
+const safeGetLocalStorage = (key: string): string | null => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.getItem === 'function') {
+      return window.localStorage.getItem(key);
+    }
+  } catch {
+    // Ignore error
+  }
+  return null;
+};
+
+const safeSetLocalStorage = (key: string, value: string): void => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.setItem === 'function') {
+      window.localStorage.setItem(key, value);
+    }
+  } catch {
+    // Ignore error
+  }
+};
+
+const safeRemoveLocalStorage = (key: string): void => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage && typeof window.localStorage.removeItem === 'function') {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // Ignore error
+  }
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('aeriq_auth_user');
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {
-          // Ignore
-        }
+    const stored = safeGetLocalStorage('aeriq_auth_user');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        // Ignore
       }
     }
     return null;
   });
 
   const [sessionState, setSessionState] = useState<SessionState>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('aeriq_auth_user');
-      if (stored) return 'authenticated';
-    }
-    return 'unauthenticated';
+    const stored = safeGetLocalStorage('aeriq_auth_user');
+    return stored ? 'authenticated' : 'unauthenticated';
   });
 
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
@@ -61,12 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const setPersistedUser = (authUser: AuthUser | null, state: SessionState) => {
     setUser(authUser);
     setSessionState(state);
-    if (typeof window !== 'undefined') {
-      if (authUser) {
-        localStorage.setItem('aeriq_auth_user', JSON.stringify(authUser));
-      } else {
-        localStorage.removeItem('aeriq_auth_user');
-      }
+    if (authUser) {
+      safeSetLocalStorage('aeriq_auth_user', JSON.stringify(authUser));
+    } else {
+      safeRemoveLocalStorage('aeriq_auth_user');
     }
   };
 
@@ -146,8 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const fbResponse = await loginUserWithFirebase(data);
       if (fbResponse.success && fbResponse.data) {
-        setUser(fbResponse.data);
-        setSessionState('authenticated');
+        setPersistedUser(fbResponse.data, 'authenticated');
         return fbResponse;
       }
       // If Firebase is not configured or offline in test environment
@@ -159,8 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isEmailVerified: true,
           createdAt: new Date().toISOString(),
         };
-        setUser(authenticatedUser);
-        setSessionState('authenticated');
+        setPersistedUser(authenticatedUser, 'authenticated');
         return {
           success: true,
           data: authenticatedUser,
@@ -177,8 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isEmailVerified: true,
         createdAt: new Date().toISOString(),
       };
-      setUser(authenticatedUser);
-      setSessionState('authenticated');
+      setPersistedUser(authenticatedUser, 'authenticated');
       return {
         success: true,
         data: authenticatedUser,
@@ -204,10 +225,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fbResponse = await registerUserWithFirebase(data);
 
     if (fbResponse.success && fbResponse.data) {
-      setUser(fbResponse.data);
+      setPersistedUser(fbResponse.data, 'email_unverified');
       setPendingVerificationEmail(data.email);
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setSessionState('email_unverified');
       return {
         success: true,
         data: { email: data.email },
@@ -275,9 +295,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
     if (user) {
-      setUser({ ...user, isEmailVerified: true });
+      const updated = { ...user, isEmailVerified: true };
+      setPersistedUser(updated, 'authenticated');
+    } else {
+      setSessionState('authenticated');
     }
-    setSessionState('authenticated');
 
     return {
       success: true,
@@ -289,12 +311,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setPendingVerificationEmail(email);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch {
+      // Ignore
+    }
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('aeriq_terms_accepted');
     }
-    setUser(null);
-    setSessionState('unauthenticated');
+    setPersistedUser(null, 'unauthenticated');
     setPendingVerificationEmail(null);
   };
 

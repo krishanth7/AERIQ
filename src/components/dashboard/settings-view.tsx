@@ -567,6 +567,10 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Document Management & Modal State
+  const [selectedDocModal, setSelectedDocModal] = useState<CorporateDocument | null>(null);
+  const [downloadToast, setDownloadToast] = useState<string | null>(null);
+
   // 30-Day Document Subscription State (₹199 / Month)
   const [subPaidAt, setSubPaidAt] = useState<number | null>(() => {
     if (typeof window !== 'undefined') {

@@ -132,6 +132,9 @@ export default function DashboardPage() {
     },
   ]);
 
+  // Mounted State to prevent Hydration Mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
   // Form Fields State
   const [formInterval, setFormInterval] = useState('Interval 4 (17:00)');
   const [formTitle, setFormTitle] = useState('Afternoon Feed & Mortality Assessment');
@@ -143,6 +146,7 @@ export default function DashboardPage() {
   const [formNotes, setFormNotes] = useState('All parameters verified within standard operating thresholds.');
 
   useEffect(() => {
+    setIsMounted(true);
     if (typeof window !== 'undefined') {
       const accepted = sessionStorage.getItem('aeriq_terms_accepted');
       if (accepted !== 'true') {

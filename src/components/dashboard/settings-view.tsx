@@ -31,6 +31,8 @@ import {
   Download,
   Eye,
   Filter,
+  CreditCard,
+  Clock,
 } from 'lucide-react';
 
 interface InteractiveMapPreviewProps {

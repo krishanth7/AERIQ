@@ -567,21 +567,42 @@ export function SettingsView({ user, onUpdateUser }: SettingsViewProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Document Management State
-  const [docSearchQuery, setDocSearchQuery] = useState('');
-  const [docStageFilter, setDocStageFilter] = useState<string>('All');
-  const [selectedDocModal, setSelectedDocModal] = useState<CorporateDocument | null>(null);
-  const [downloadToast, setDownloadToast] = useState<string | null>(null);
-
-  const filteredDocuments = DOCUMENT_ITEMS.filter((doc) => {
-    const matchesSearch =
-      doc.title.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
-      doc.originalTitle.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
-      doc.code.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
-      doc.description.toLowerCase().includes(docSearchQuery.toLowerCase());
-    const matchesStage = docStageFilter === 'All' || doc.stage === docStageFilter;
-    return matchesSearch && matchesStage;
+  // 30-Day Document Subscription State (₹199 / Month)
+  const [subPaidAt, setSubPaidAt] = useState<number | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('aeriq_doc_sub_paid_at');
+      return stored ? parseInt(stored, 10) : null;
+    }
+    return null;
   });
+
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ type: 'view' | 'download'; doc: CorporateDocument } | null>(null);
+
+  // Checks if 30 days (30 * 24 * 60 * 60 * 1000 ms) have passed since payment
+  const isSubscriptionActive = React.useMemo(() => {
+    if (!subPaidAt) return false;
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    return Date.now() - subPaidAt < THIRTY_DAYS_MS;
+  }, [subPaidAt]);
+
+  const daysRemaining = React.useMemo(() => {
+    if (!subPaidAt) return 0;
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const remainingMs = THIRTY_DAYS_MS - (Date.now() - subPaidAt);
+    if (remainingMs <= 0) return 0;
+    return Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
+  }, [subPaidAt]);
+
+  const handleDocViewClick = (doc: CorporateDocument) => {
+    if (isSubscriptionActive) {
+      setSelectedDocModal(doc);
+    } else {
+      setPendingAction({ type: 'view', doc });
+      setShowPaymentModal(true);
+    }
+  };
 
   const handleDownloadDoc = (doc: CorporateDocument) => {
     const content = `================================================================================
@@ -622,6 +643,38 @@ Technologies. Any unauthorized review, distribution, or copying is strictly proh
     setTimeout(() => {
       setDownloadToast(null);
     }, 4000);
+  };
+
+  const handleDocDownloadClick = (doc: CorporateDocument) => {
+    if (isSubscriptionActive) {
+      handleDownloadDoc(doc);
+    } else {
+      setPendingAction({ type: 'download', doc });
+      setShowPaymentModal(true);
+    }
+  };
+
+  const handleProcessPayment = () => {
+    setIsProcessingPayment(true);
+    setTimeout(() => {
+      const now = Date.now();
+      setSubPaidAt(now);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('aeriq_doc_sub_paid_at', String(now));
+      }
+      setIsProcessingPayment(false);
+      setShowPaymentModal(false);
+      setDownloadToast('Payment of ₹199 Successful! 30-Day Access Activated.');
+
+      if (pendingAction) {
+        if (pendingAction.type === 'view') {
+          setSelectedDocModal(pendingAction.doc);
+        } else if (pendingAction.type === 'download') {
+          handleDownloadDoc(pendingAction.doc);
+        }
+        setPendingAction(null);
+      }
+    }, 1200);
   };
 
   // General profile form state
